@@ -226,24 +226,4 @@
     });
   }
 
-  var shareBtn = document.getElementById('share-btn');
-  if (shareBtn) {
-    shareBtn.addEventListener('click', function () {
-      var data = {
-        title: '讯光 · NFC 文创卡',
-        text: '碰一下，听见 AI 的声音。',
-        url: location.href
-      };
-      if (navigator.share) {
-        navigator.share(data).catch(function () {});
-      } else if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(location.href);
-        shareBtn.textContent = '链接已复制';
-        window.setTimeout(function () { shareBtn.textContent = '分享本页'; }, 1600);
-      } else {
-        window.alert('当前浏览器不支持一键分享，可以手动复制地址栏链接。');
-      }
-    });
-  }
-
 })();
