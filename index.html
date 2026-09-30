@@ -65,8 +65,32 @@
     <p class="hint">这两格目前是占位图。萌化形象已经换成你的角色了；右边那格还是占位图，把卡片实物照片放进 assets/ 并命名为 card.png 即可自动替换。单张建议压缩到 300 KB 以内、宽度 1200 px 左右，手机打开会更快。</p>
   </section>
 
+  <section class="block" id="assistant" data-reveal>
+    <h2><span class="num">01</span>智能小助手</h2>
+    <p>页面右下角那个小家伙，是这张卡的向导。它一直在那儿，随时可用。</p>
+    <div class="cards">
+      <article class="card">
+        <h3>点一下 · 带路</h3>
+        <p>点它，会弹出几个去处：讯飞在做什么、它长什么样、这个作品的来龙去脉。选一个，页面会滚过去，它还会出声告诉你。</p>
+      </article>
+      <article class="card">
+        <h3>长按 · 对话</h3>
+        <p>按住它一秒，就能开口问它问题，它会用声音回答你。这一部分要在服务端接入大模型，正在接入中。</p>
+      </article>
+      <article class="card">
+        <h3>换形象 · 换声音</h3>
+        <p>在它的菜单里可以挑喜欢的形象和音色，换完会记住，下次打开还是你选的那个。按住还能把它拖到顺手的位置。</p>
+      </article>
+      <article class="card">
+        <h3>不打扰 · 不采集</h3>
+        <p>它偶尔提醒你它能做什么；你正在操作、或者菜单开着的时候，它不会插嘴。它不采集你的任何信息。</p>
+      </article>
+    </div>
+    <p class="hint">想马上试：用手指点一下右下角的小助手。</p>
+  </section>
+
   <section class="block" id="about" data-reveal>
-    <h2><span class="num">01</span>关于科大讯飞</h2>
+    <h2><span class="num">02</span>关于科大讯飞</h2>
     <p class="lead">让机器能听会说，能理解会思考。</p>
     <!-- 以下事实性内容请以讯飞官方资料为准后定稿 -->
     <p>科大讯飞股份有限公司成立于 1999 年，总部位于安徽合肥，是长期深耕智能语音与人工智能方向的上市企业。二十多年里，它的技术重心一直落在一件事上：让机器不仅能"听"到声音，也能"听懂"内容，并且用自然的方式回应人。</p>
@@ -81,7 +105,7 @@
   </section>
 
   <section class="block" data-reveal>
-    <h2><span class="num">02</span>它究竟在做什么</h2>
+    <h2><span class="num">03</span>它究竟在做什么</h2>
     <div class="cards">
       <article class="card">
         <h3>语音合成</h3>
@@ -103,7 +127,7 @@
   </section>
 
   <section class="block block-tint" data-reveal>
-    <h2><span class="num">03</span>产教融合，与我们的位置</h2>
+    <h2><span class="num">04</span>产教融合，与我们的位置</h2>
     <p>「X+AI 文创共创计划」要做的，不是一次单纯的设计比赛。它把设计专业同学的创意表达，和计算机、人工智能、物联网专业同学的技术实现放在同一张桌子上，让作品从"好看"走到"能落地"。</p>
     <p>我们的选择是：不把产教融合写成一段文案，而是把它做成一张能被"触碰"的实体卡。卡片是设计的载体，NFC 是技术的入口，扫描之后打开的页面，是这段校企协同叙事的正文。</p>
     <div class="quote">
@@ -113,9 +137,8 @@
 
   
 
-
   <section class="block" data-reveal>
-    <h2><span class="num">04</span>继续了解</h2>
+    <h2><span class="num">05</span>继续了解</h2>
     <div class="links">
       <a class="link-card" href="https://www.iflytek.com/" target="_blank" rel="noreferrer">
         <strong>科大讯飞官网</strong><span>企业动态、技术与业务全貌</span>
@@ -131,7 +154,7 @@
   </section>
 
   <section class="block block-tint" id="about-page" data-reveal>
-    <h2><span class="num">05</span>关于本页</h2>
+    <h2><span class="num">06</span>关于本页</h2>
     <div class="spec">
       <div class="spec-row"><span class="spec-k">团队</span><span class="spec-v" id="team-line">（请在 PPT 与页脚补充团队署名：院校 · 专业 · 分工）</span></div>
       <div class="spec-row"><span class="spec-k">AI 使用</span><span class="spec-v">本页的版式、配色方案与文案初稿由 AI 工具辅助生成，经过人工筛选、改写与排版；卡片视觉与插画同样包含 AI 生成内容。生成过程与提示词记录随作品一并提交。</span></div>
@@ -153,20 +176,29 @@
 </footer>
 
 <!-- ============================ 浮窗导览员 ============================ -->
-<audio id="voice-audio" preload="auto" src="assets/voice/line01.mp3"></audio>
+<audio id="voice-audio" preload="auto"></audio>
 
 <div class="buddy-wrap" id="buddy-wrap">
-  <div class="buddy-menu" id="buddy-menu" hidden role="menu" aria-label="快捷动作">
-    <button type="button" role="menuitem" data-go="#about" data-say="assets/voice/nav01.mp3"
-            data-text="好，我们去看科大讯飞在做什么。">带我看讯飞在做什么</button>
-    <button type="button" role="menuitem" data-say="assets/voice/nav02.mp3" data-then-hook="1"
-            data-text="这就是这张卡的声音，一起听。">听听我能念什么</button>
-    <button type="button" role="menuitem" data-go="#showcase" data-say="assets/voice/nav03.mp3"
-            data-text="先看看我长什么样。">先看看我长什么样</button>
-    <button type="button" role="menuitem" data-go="#about-page" data-say="assets/voice/nav04.mp3"
-            data-text="这个作品的来龙去脉，都写在这一页。">这个作品的来龙去脉</button>
+  <div class="buddy-menu" id="buddy-menu" hidden role="menu" aria-label="智能小助手">
+    <div class="bm-list">
+      <button type="button" role="menuitem" data-go="#about" data-clip="nav01"
+              data-text="好，我们去看科大讯飞在做什么。">带我看讯飞在做什么</button>
+      <button type="button" role="menuitem" data-go="#showcase" data-clip="nav03"
+              data-text="先看看我长什么样。">先看看我长什么样</button>
+      <button type="button" role="menuitem" data-go="#about-page" data-clip="nav04"
+              data-text="这个作品的来龙去脉，都写在这一页。">这个作品的来龙去脉</button>
+    </div>
+    <div class="bm-sec">
+      <span class="bm-label">换形象</span>
+      <div class="bm-row" id="buddy-styles"></div>
+    </div>
+    <div class="bm-sec">
+      <span class="bm-label">换声音</span>
+      <div class="bm-row" id="buddy-voices"></div>
+    </div>
+    <p class="bm-tip">长按我，就能和我说话</p>
   </div>
-  <p class="buddy-bubble" id="buddy-bubble" hidden></p>
+<p class="buddy-bubble" id="buddy-bubble" hidden></p>
   <div class="buddy" id="buddy" role="button" tabindex="0"
        aria-label="页面向导：点一下打开快捷动作，再点一下收起，长按可以和我说话"></div>
 </div>
