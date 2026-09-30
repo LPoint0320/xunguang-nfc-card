@@ -11,8 +11,8 @@
 
   /* ============ 可调参数（想改默认值改这里） ============ */
   var BUDDY_SVG = {
-  "wave": "<svg class=\"bd-svg bd-wave\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <defs>\n    <linearGradient id=\"bdWave\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0%\" stop-color=\"#63C3EA\"/><stop offset=\"100%\" stop-color=\"#0B5FA5\"/>\n    </linearGradient>\n  </defs>\n  <g class=\"bd-arc\" fill=\"none\" stroke=\"#2C9BD6\" stroke-width=\"3.4\" stroke-linecap=\"round\">\n    <path d=\"M20 34a30 30 0 0 1 0 26\"/>\n    <path d=\"M76 34a30 30 0 0 0 0 26\"/>\n  </g>\n  <ellipse cx=\"48\" cy=\"56\" rx=\"25\" ry=\"23\" fill=\"url(#bdWave)\"/>\n  <ellipse cx=\"38\" cy=\"44\" rx=\"10\" ry=\"6\" fill=\"#fff\" opacity=\".25\" transform=\"rotate(-22 38 44)\"/>\n  <g class=\"bd-eyes\" fill=\"#fff\">\n    <ellipse cx=\"39\" cy=\"54\" rx=\"6.4\" ry=\"7.2\"/>\n    <ellipse cx=\"57\" cy=\"54\" rx=\"6.4\" ry=\"7.2\"/>\n  </g>\n  <g fill=\"#123A5E\">\n    <circle cx=\"39.6\" cy=\"55\" r=\"3.1\"/><circle cx=\"57.6\" cy=\"55\" r=\"3.1\"/>\n  </g>\n  <path d=\"M42 66q6 5 12 0\" fill=\"none\" stroke=\"#123A5E\" stroke-width=\"2.4\" stroke-linecap=\"round\"/>\n  <circle cx=\"30\" cy=\"62\" r=\"3.4\" fill=\"#FFB7B7\" opacity=\".9\"/>\n  <circle cx=\"66\" cy=\"62\" r=\"3.4\" fill=\"#FFB7B7\" opacity=\".9\"/>\n</svg>",
-  "spark": "<svg class=\"bd-svg bd-spark\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <defs>\n    <linearGradient id=\"bdSparkA\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\">\n      <stop offset=\"0%\" stop-color=\"#2C9BD6\"/><stop offset=\"100%\" stop-color=\"#0B5FA5\"/>\n    </linearGradient>\n    <radialGradient id=\"bdSparkB\">\n      <stop offset=\"0%\" stop-color=\"#FFE7A6\"/><stop offset=\"100%\" stop-color=\"#C6A14A\"/>\n    </radialGradient>\n  </defs>\n  <g class=\"bd-spin\">\n    <path d=\"M48 8C52 34 62 44 88 48 62 52 52 62 48 88 44 62 34 52 8 48 34 44 44 34 48 8Z\"\n          fill=\"url(#bdSparkA)\"/>\n  </g>\n  <circle cx=\"48\" cy=\"48\" r=\"17\" fill=\"url(#bdSparkB)\" opacity=\".95\"/>\n  <g class=\"bd-eyes\" fill=\"#123A5E\">\n    <ellipse cx=\"42\" cy=\"47\" rx=\"3\" ry=\"3.6\"/>\n    <ellipse cx=\"54\" cy=\"47\" rx=\"3\" ry=\"3.6\"/>\n  </g>\n  <path d=\"M43 55q5 4 10 0\" fill=\"none\" stroke=\"#123A5E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/>\n  <circle class=\"bd-sat\" cx=\"48\" cy=\"14\" r=\"3.4\" fill=\"#2C9BD6\"/>\n  <circle class=\"bd-sat2\" cx=\"82\" cy=\"64\" r=\"2.6\" fill=\"#C6A14A\"/>\n</svg>",
+  "wave": "<svg class=\"bd-svg bd-wave\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <defs>\n    <linearGradient id=\"bdWave\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0%\" stop-color=\"#63C3EA\"/><stop offset=\"100%\" stop-color=\"#0B5FA5\"/>\n    </linearGradient>\n  </defs>\n  <g class=\"bd-arc\" fill=\"none\" stroke=\"#2C9BD6\" stroke-width=\"3.4\" stroke-linecap=\"round\">\n    <path d=\"M20 34a30 30 0 0 1 0 26\"/>\n    <path d=\"M76 34a30 30 0 0 0 0 26\"/>\n  </g>\n  <ellipse cx=\"48\" cy=\"56\" rx=\"25\" ry=\"23\" fill=\"url(#bdWave) #4FA9D8\"/>\n  <ellipse cx=\"38\" cy=\"44\" rx=\"10\" ry=\"6\" fill=\"#fff\" opacity=\".25\" transform=\"rotate(-22 38 44)\"/>\n  <g class=\"bd-eyes\" fill=\"#fff\">\n    <ellipse cx=\"39\" cy=\"54\" rx=\"6.4\" ry=\"7.2\"/>\n    <ellipse cx=\"57\" cy=\"54\" rx=\"6.4\" ry=\"7.2\"/>\n  </g>\n  <g fill=\"#123A5E\">\n    <circle cx=\"39.6\" cy=\"55\" r=\"3.1\"/><circle cx=\"57.6\" cy=\"55\" r=\"3.1\"/>\n  </g>\n  <path d=\"M42 66q6 5 12 0\" fill=\"none\" stroke=\"#123A5E\" stroke-width=\"2.4\" stroke-linecap=\"round\"/>\n  <circle cx=\"30\" cy=\"62\" r=\"3.4\" fill=\"#FFB7B7\" opacity=\".9\"/>\n  <circle cx=\"66\" cy=\"62\" r=\"3.4\" fill=\"#FFB7B7\" opacity=\".9\"/>\n</svg>",
+  "spark": "<svg class=\"bd-svg bd-spark\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <defs>\n    <linearGradient id=\"bdSparkA\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\">\n      <stop offset=\"0%\" stop-color=\"#2C9BD6\"/><stop offset=\"100%\" stop-color=\"#0B5FA5\"/>\n    </linearGradient>\n    <radialGradient id=\"bdSparkB\">\n      <stop offset=\"0%\" stop-color=\"#FFE7A6\"/><stop offset=\"100%\" stop-color=\"#C6A14A\"/>\n    </radialGradient>\n  </defs>\n  <g class=\"bd-spin\">\n    <path d=\"M48 8C52 34 62 44 88 48 62 52 52 62 48 88 44 62 34 52 8 48 34 44 44 34 48 8Z\"\n          fill=\"url(#bdSparkA) #2C9BD6\"/>\n  </g>\n  <circle cx=\"48\" cy=\"48\" r=\"17\" fill=\"url(#bdSparkB) #F0C765\" opacity=\".95\"/>\n  <g class=\"bd-eyes\" fill=\"#123A5E\">\n    <ellipse cx=\"42\" cy=\"47\" rx=\"3\" ry=\"3.6\"/>\n    <ellipse cx=\"54\" cy=\"47\" rx=\"3\" ry=\"3.6\"/>\n  </g>\n  <path d=\"M43 55q5 4 10 0\" fill=\"none\" stroke=\"#123A5E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/>\n  <circle class=\"bd-sat\" cx=\"48\" cy=\"14\" r=\"3.4\" fill=\"#2C9BD6\"/>\n  <circle class=\"bd-sat2\" cx=\"82\" cy=\"64\" r=\"2.6\" fill=\"#C6A14A\"/>\n</svg>",
   "bot": "<svg class=\"bd-svg bd-bot\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <line x1=\"48\" y1=\"20\" x2=\"48\" y2=\"31\" stroke=\"#0B5FA5\" stroke-width=\"3.2\"/>\n  <circle class=\"bd-blink\" cx=\"48\" cy=\"15\" r=\"5.4\" fill=\"#C6A14A\"/>\n  <rect x=\"19\" y=\"30\" width=\"58\" height=\"48\" rx=\"17\" fill=\"#FFFFFF\" stroke=\"#0B5FA5\" stroke-width=\"3.6\"/>\n  <rect x=\"27\" y=\"40\" width=\"42\" height=\"26\" rx=\"11\" fill=\"#E7F3FA\"/>\n  <g class=\"bd-eyes\" fill=\"#0B5FA5\">\n    <ellipse cx=\"40\" cy=\"52\" rx=\"5.4\" ry=\"6.4\"/>\n    <ellipse cx=\"56\" cy=\"52\" rx=\"5.4\" ry=\"6.4\"/>\n  </g>\n  <g stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\" opacity=\".9\">\n    <path d=\"M40 50v4\"/><path d=\"M56 50v4\"/>\n  </g>\n  <g class=\"bd-nfc\" fill=\"none\" stroke=\"#2C9BD6\" stroke-width=\"2.6\" stroke-linecap=\"round\">\n    <path d=\"M42 70a11 11 0 0 1 0 0\"/>\n    <path d=\"M36 74a14 14 0 0 1 0-12\"/>\n    <path d=\"M60 74a14 14 0 0 0 0-12\"/>\n  </g>\n  <circle cx=\"30\" cy=\"63\" r=\"3\" fill=\"#FFB7B7\" opacity=\".85\"/>\n  <circle cx=\"66\" cy=\"63\" r=\"3\" fill=\"#FFB7B7\" opacity=\".85\"/>\n</svg>",
   "card": "<svg class=\"bd-svg bd-card\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <g class=\"bd-wings\" fill=\"#CFE7F6\">\n    <path d=\"M22 44q-12-8-16 2 8 8 16 6z\"/>\n    <path d=\"M74 44q12-8 16 2-8 8-16 6z\"/>\n  </g>\n  <rect x=\"24\" y=\"32\" width=\"48\" height=\"34\" rx=\"10\" fill=\"#FFFFFF\" stroke=\"#C6A14A\" stroke-width=\"3.2\"/>\n  <g class=\"bd-eyes\" fill=\"#0B5FA5\">\n    <ellipse cx=\"41\" cy=\"47\" rx=\"4.2\" ry=\"5\"/>\n    <ellipse cx=\"57\" cy=\"47\" rx=\"4.2\" ry=\"5\"/>\n  </g>\n  <path d=\"M43 56q5 4 10 0\" fill=\"none\" stroke=\"#0B5FA5\" stroke-width=\"2.3\" stroke-linecap=\"round\"/>\n  <circle cx=\"33\" cy=\"55\" r=\"2.8\" fill=\"#FFB7B7\" opacity=\".85\"/>\n  <circle cx=\"65\" cy=\"55\" r=\"2.8\" fill=\"#FFB7B7\" opacity=\".85\"/>\n  <g class=\"bd-nfc\" fill=\"none\" stroke=\"#2C9BD6\" stroke-width=\"2.5\" stroke-linecap=\"round\">\n    <path d=\"M78 40a16 16 0 0 1 0 20\"/>\n    <path d=\"M85 34a25 25 0 0 1 0 32\"/>\n  </g>\n</svg>"
 };
@@ -171,8 +171,21 @@
   var dragging = false;
   var POS_KEY = 'buddy_pos';
 
+  var uidSeq = 0;
+
+  // 把 SVG 里的 id 与 url(#id) 都加上唯一后缀：
+  // 同一份 SVG 会在浮窗和缩略图里各出现一次，重名会让 url(#id) 指向已经被销毁的定义，
+  // 填充解析失败时浏览器会直接不画，表现就是"图形变透明"。
+  function inlineSvg(svgText) {
+    uidSeq += 1;
+    var suffix = '_u' + uidSeq;
+    return svgText
+      .replace(/id="([^"]+)"/g, function (m, id) { return 'id="' + id + suffix + '"'; })
+      .replace(/url\(#([^)]+)\)/g, function (m, id) { return 'url(#' + id + suffix + ')'; });
+  }
+
   function renderBuddy() {
-    if (buddy && BUDDY_SVG[styleKey]) buddy.innerHTML = BUDDY_SVG[styleKey];
+    if (buddy && BUDDY_SVG[styleKey]) buddy.innerHTML = inlineSvg(BUDDY_SVG[styleKey]);
   }
 
   function renderSwitchers() {
@@ -185,7 +198,7 @@
         b.setAttribute('data-style', s.key);
         b.title = s.name;
         b.setAttribute('aria-label', '换成' + s.name + '形象');
-        b.innerHTML = '<span class="bm-thumb">' + BUDDY_SVG[s.key] + '</span>';
+        b.innerHTML = '<span class="bm-thumb">' + inlineSvg(BUDDY_SVG[s.key]) + '</span>';
         styleRow.appendChild(b);
       });
     }
