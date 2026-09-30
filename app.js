@@ -215,20 +215,6 @@
   }
 
 
-  /* ---- 只出声、不出气泡（答题反馈用） ---- */
-  function speakClip(clip) {
-    if (hook && !hook.paused) { hook.pause(); cap(false); heroState('idle'); }
-    navAudio.src = clipURL(clip);
-    var p = navAudio.play();
-    if (p && p.catch) p.catch(function () {});
-    if (buddy) {
-      buddy.classList.add('is-speaking');
-      window.clearTimeout(buddy._spk);
-      buddy._spk = window.setTimeout(function () { buddy.classList.remove('is-speaking'); }, 2000);
-    }
-  }
-
-
   /* ---- 关于讯飞的小测验 ---- */
   var QUIZ = [
     { q: '科大讯飞成立于哪一年？', a: ['1999 年', '2009 年', '1989 年'], c: 0,
@@ -321,7 +307,10 @@
     if (ok) quizScore++;
     quizFb.innerHTML = (ok ? '<b>答对了。</b>' : '<b>答错了。</b>') + ' ' + item.why;
     quizFb.hidden = false;
-    speakClip(ok ? 'quiz-ok' : 'quiz-no');
+    if (buddy) {
+      buddy.classList.add('is-pop');
+      window.setTimeout(function () { buddy.classList.remove('is-pop'); }, 360);
+    }
 
     quizNext.hidden = false;
     quizNext.textContent = (quizIdx < quizRound.length - 1) ? '下一题' : '看结果';
@@ -341,7 +330,6 @@
     quizFb.hidden = true;
     quizNext.hidden = false;
     quizNext.textContent = '再来一次';
-    speakClip('quiz-end');
   }
 
   if (quizOpts) {
