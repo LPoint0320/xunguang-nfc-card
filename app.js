@@ -180,16 +180,9 @@
     });
   }
 
-  /* ---------------------------------------------------- 4. Web NFC */
-  if ('NDEFReader' in window) {
-    var host = document.getElementById('about-page');
-    if (host) {
-      var p = document.createElement('p');
-      p.className = 'hint';
-      p.innerHTML = '检测到当前浏览器支持 Web NFC。需要改写卡片里的网址时，可以打开' +
-        ' <a href="writer.html">写卡工具</a>（需在 HTTPS 或本机 localhost 环境下使用）。';
-      host.appendChild(p);
-    }
-  }
+  /* ---------------------------------------------------- 4. 关于写卡工具 */
+  // 写卡工具（writer.html）故意不做任何页面入口。
+  // 它能改写甚至锁定 NFC 卡片，公开引流只会带来误操作，没有任何好处。
+  // 需要写卡时直接访问：https://lpoint0320.github.io/xunguang-nfc-card/writer.html
 
 })();

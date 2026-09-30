@@ -74,7 +74,7 @@ main{padding:0 22px 34px}
 
 .hero-title{
   margin:26px 0 6px;
-  font-size:33px;
+  font-size:30px;
   line-height:1.32;
   letter-spacing:.02em;
   font-weight:700;
@@ -405,7 +405,7 @@ main{padding:0 22px 34px}
   .block-tint,.block-deep{margin:0 -34px;padding:36px 34px}
   .foot{border-radius:0 0 24px 24px;padding:26px 34px 34px}
 
-  .hero-title{font-size:40px}
+  .hero-title{font-size:36px}
   .cards{grid-template-columns:repeat(2,1fr)}
   .facts{grid-template-columns:repeat(4,1fr)}
   .links{grid-template-columns:repeat(3,1fr)}
