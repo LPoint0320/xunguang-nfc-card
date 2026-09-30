@@ -215,6 +215,147 @@
     }
   }
 
+
+  /* ---- 只出声、不出气泡（答题反馈用） ---- */
+  function speakClip(clip) {
+    if (hook && !hook.paused) { hook.pause(); cap(false); heroState('idle'); }
+    navAudio.src = clipURL(clip);
+    var p = navAudio.play();
+    if (p && p.catch) p.catch(function () {});
+    if (buddy) {
+      buddy.classList.add('is-speaking');
+      window.clearTimeout(buddy._spk);
+      buddy._spk = window.setTimeout(function () { buddy.classList.remove('is-speaking'); }, 2000);
+    }
+  }
+
+
+  /* ---- 关于讯飞的小测验 ---- */
+  var QUIZ = [
+    { q: '科大讯飞成立于哪一年？', a: ['1999 年', '2009 年', '1989 年'], c: 0,
+      why: '1999 年成立于安徽合肥。' },
+    { q: '「讯飞星火」是什么？', a: ['一款耳机', '认知大模型', '一座城市'], c: 1,
+      why: '2023 年发布的讯飞星火认知大模型。' },
+    { q: '这张卡片靠什么被手机唤醒？', a: ['内置电池', '蓝牙配对', '手机的电磁场'], c: 2,
+      why: '卡里没有电池，靠 13.56 MHz 的电磁场取一点点电。' },
+    { q: 'NFC 大概能读多远？', a: ['贴着几厘米', '十米左右', '一百米'], c: 0,
+      why: '通常只有几厘米，所以必须贴上去——这也让它更安全。' },
+    { q: '「语音合成」做的是哪件事？', a: ['把文字变成声音', '把声音变成文字', '把图片变成视频'], c: 0,
+      why: '把声音变成文字的是语音识别，两者经常一起用。' }
+  ];
+  var ROUND = 3;
+
+  var quizPanel = document.getElementById('buddy-quiz');
+  var quizStep = document.getElementById('bq-step');
+  var quizQ = document.getElementById('bq-question');
+  var quizOpts = document.getElementById('bq-options');
+  var quizFb = document.getElementById('bq-feedback');
+  var quizNext = document.getElementById('bq-next');
+  var quizClose = document.getElementById('bq-close');
+
+  var quizRound = [];
+  var quizIdx = 0;
+  var quizScore = 0;
+  var quizFinished = false;
+
+  function quizPick() {
+    var pool = QUIZ.slice();
+    var out = [];
+    while (out.length < ROUND && pool.length) {
+      out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    }
+    return out;
+  }
+
+  function quizRender() {
+    var item = quizRound[quizIdx];
+    if (!item) return;
+    quizStep.textContent = '第 ' + (quizIdx + 1) + ' / ' + quizRound.length + ' 题';
+    quizQ.textContent = item.q;
+    quizFb.hidden = true;
+    quizFb.textContent = '';
+    quizNext.hidden = true;
+    quizOpts.removeAttribute('data-done');
+    quizOpts.innerHTML = '';
+    item.a.forEach(function (text, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'bq-opt';
+      b.textContent = text;
+      b.setAttribute('data-i', String(i));
+      quizOpts.appendChild(b);
+    });
+  }
+
+  function startQuiz() {
+    if (!quizPanel) return;
+    quizRound = quizPick();
+    quizIdx = 0;
+    quizScore = 0;
+    quizFinished = false;
+    if (bubble) { bubble.hidden = true; window.clearTimeout(bubbleTimer); }
+    quizPanel.hidden = false;
+    if (buddy) buddy.classList.add('is-calling');
+    quizRender();
+  }
+
+  function closeQuiz() {
+    if (quizPanel) quizPanel.hidden = true;
+    if (buddy) buddy.classList.remove('is-calling');
+  }
+
+  function answerQuiz(pick) {
+    var item = quizRound[quizIdx];
+    if (!item || !quizPanel || quizPanel.hidden) return;
+    if (quizOpts.getAttribute('data-done') === '1') return;
+    quizOpts.setAttribute('data-done', '1');
+
+    var btns = quizOpts.querySelectorAll('button');
+    for (var k = 0; k < btns.length; k++) {
+      var bi = parseInt(btns[k].getAttribute('data-i'), 10);
+      btns[k].disabled = true;
+      if (bi === item.c) btns[k].classList.add('is-right');
+      else if (bi === pick) btns[k].classList.add('is-wrong');
+    }
+
+    var ok = (pick === item.c);
+    if (ok) quizScore++;
+    quizFb.innerHTML = (ok ? '<b>答对了。</b>' : '<b>答错了。</b>') + ' ' + item.why;
+    quizFb.hidden = false;
+    speakClip(ok ? 'quiz-ok' : 'quiz-no');
+
+    quizNext.hidden = false;
+    quizNext.textContent = (quizIdx < quizRound.length - 1) ? '下一题' : '看结果';
+  }
+
+  function quizAdvance() {
+    if (quizFinished) { startQuiz(); return; }
+    if (quizIdx < quizRound.length - 1) {
+      quizIdx++;
+      quizRender();
+      return;
+    }
+    quizFinished = true;
+    quizStep.textContent = '完成';
+    quizQ.textContent = '你答对了 ' + quizScore + ' / ' + quizRound.length + ' 题';
+    quizOpts.innerHTML = '';
+    quizFb.hidden = true;
+    quizNext.hidden = false;
+    quizNext.textContent = '再来一次';
+    speakClip('quiz-end');
+  }
+
+  if (quizOpts) {
+    quizOpts.addEventListener('click', function (ev) {
+      var b = ev.target.closest ? ev.target.closest('button') : null;
+      if (!b) return;
+      answerQuiz(parseInt(b.getAttribute('data-i'), 10));
+    });
+  }
+  if (quizNext) quizNext.addEventListener('click', quizAdvance);
+  if (quizClose) quizClose.addEventListener('click', closeQuiz);
+
+
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
   function place(x, y, snap) {
@@ -260,6 +401,7 @@
   function openMenu() {
     // 气泡和菜单在同一位置，气泡在后、又没层级，会把菜单盖住 —— 打开菜单前先收起气泡
     if (bubble) { bubble.hidden = true; window.clearTimeout(bubbleTimer); }
+    if (quizPanel) quizPanel.hidden = true;
     if (menu) menu.hidden = false;
     if (buddy) buddy.classList.add('is-calling');
   }
@@ -379,6 +521,12 @@
           return;
         }
 
+        if (el.closest && el.closest('[data-quiz]')) {
+          closeMenu();
+          startQuiz();
+          return;
+        }
+
         var cmd = el.closest ? el.closest('[data-go],[data-clip]') : null;
         if (cmd) {
           var go = cmd.getAttribute('data-go');
@@ -408,6 +556,7 @@
     window.setInterval(function () {
       if (document.hidden) return;
       if (menu && !menu.hidden) return;
+      if (quizPanel && !quizPanel.hidden) return;
       if (dragging) return;
       if (Date.now() - lastTouch < 15000) return;
       if (bubble && !bubble.hidden) return;

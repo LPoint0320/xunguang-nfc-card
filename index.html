@@ -177,12 +177,7 @@
 <div class="buddy-wrap" id="buddy-wrap">
   <div class="buddy-menu" id="buddy-menu" hidden role="menu" aria-label="智能小助手">
     <div class="bm-list">
-      <button type="button" role="menuitem" data-go="#about" data-clip="nav01"
-              data-text="好，我们去看科大讯飞在做什么。">带我看讯飞在做什么</button>
-      <button type="button" role="menuitem" data-go="#showcase" data-clip="nav03"
-              data-text="先看看我长什么样。">先看看我长什么样</button>
-      <button type="button" role="menuitem" data-go="#about-page" data-clip="nav04"
-              data-text="这个作品的来龙去脉，都写在这一页。">这个作品的来龙去脉</button>
+      <button type="button" role="menuitem" data-quiz="1">考考你 · 关于讯飞的三道题</button>
     </div>
     <div class="bm-sec">
       <span class="bm-label">换形象</span>
@@ -193,6 +188,16 @@
       <div class="bm-row" id="buddy-voices"></div>
     </div>
     <p class="bm-tip">长按我，就能和我说话</p>
+  </div>
+  <div class="buddy-quiz" id="buddy-quiz" hidden role="dialog" aria-label="小测验">
+    <div class="bq-head">
+      <span id="bq-step">第 1 / 3 题</span>
+      <button type="button" class="bq-close" id="bq-close" aria-label="关闭测验">×</button>
+    </div>
+    <p class="bq-q" id="bq-question"></p>
+    <div class="bq-opts" id="bq-options"></div>
+    <p class="bq-fb" id="bq-feedback" hidden></p>
+    <button type="button" class="bq-next" id="bq-next" hidden>下一题</button>
   </div>
 <p class="buddy-bubble" id="buddy-bubble" hidden></p>
   <div class="buddy" id="buddy" role="button" tabindex="0"
