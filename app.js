@@ -285,6 +285,7 @@
       if (ev.button !== undefined && ev.button !== 0) return;
       dragging = true;
       movedReset();
+      longPressed = false;          // 每次按下都要复位，否则长按之后单击就再也打不开菜单
       lastTouch = Date.now();
       var r = wrap.getBoundingClientRect();
       startX = ev.clientX; startY = ev.clientY;
