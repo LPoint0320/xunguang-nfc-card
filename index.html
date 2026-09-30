@@ -33,10 +33,16 @@
 
   <div class="hero-actions">
     <button id="tts-btn" class="btn btn-primary" type="button">
-      <span class="btn-icon" aria-hidden="true">▶</span><span id="tts-label">听它朗读</span>
+      <span class="btn-icon" aria-hidden="true">▶</span><span id="tts-label">点一下，听它开口</span>
     </button>
     <a class="btn btn-ghost" href="#about">认识科大讯飞</a>
   </div>
+
+  <p class="hero-voice" id="hero-voice" hidden>
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span id="hero-voice-text">正在朗读…</span>
+  </p>
+  <p class="hero-more" id="hero-more" hidden><a href="#voice">继续听完整介绍 →</a></p>
 
   <p class="nfc-flag"><span class="dot" aria-hidden="true"></span>由实体卡片唤醒 · 碰一碰或扫码均可</p>
 </header>
@@ -107,14 +113,36 @@
 
   
 
-  <section class="block block-deep" data-reveal>
+  <section class="block block-deep" id="voice" data-reveal>
     <h2><span class="num">04</span>试一试声音</h2>
-    <p>页面内置了一段浏览器语音合成，用来演示"文字变声音"这件事。它跑在你的手机本地，所以离线也能用。</p>
-    <div class="voice">
-      <button id="tts-btn-2" class="btn btn-light" type="button"><span class="btn-icon" aria-hidden="true">🔊</span><span id="tts-label-2">朗读这张卡的介绍</span></button>
-      <button id="stop-btn" class="btn btn-outline-light" type="button">停止</button>
+    <p>下面这段话不是录音，是<strong>由机器把文字念出来的</strong>。七句话，逐句听完，就是一次完整的"文字变声音"。</p>
+
+    <div class="player">
+      <div class="player-bar">
+        <button id="voice-play" class="btn btn-light" type="button">
+          <span class="btn-icon" aria-hidden="true">▶</span><span id="voice-play-label">播放全部</span>
+        </button>
+        <div class="speed" role="group" aria-label="语速">
+          <button type="button" data-rate="0.85">慢</button>
+          <button type="button" data-rate="1" class="is-on">正常</button>
+          <button type="button" data-rate="1.15">快</button>
+        </div>
+      </div>
+
+      <ol class="lines" id="voice-lines">
+        <li data-src="assets/voice/line01.mp3">这是一张可以用手机碰开的文创卡。</li>
+        <li data-src="assets/voice/line02.mp3">它没有电池。手机靠近时，线圈从手机的电磁场里取得一点点电，把卡片里的网址交给手机。</li>
+        <li data-src="assets/voice/line03.mp3">科大讯飞成立于 1999 年，总部位于安徽合肥。二十多年里，它一直在做同一件事：让机器不仅能听到声音，也能听懂内容。</li>
+        <li data-src="assets/voice/line04.mp3">语音合成、语音识别、自然语言理解，这些能力被带进了课堂、医院、汽车和城市。</li>
+        <li data-src="assets/voice/line05.mp3">2023 年发布的讯飞星火认知大模型，把理解与生成的能力接进了教育与产业。</li>
+        <li data-src="assets/voice/line06.mp3">不需要装应用，不需要配对，也不需要打开什么开关。碰一下，就是全部的操作。</li>
+        <li data-src="assets/voice/line07.mp3">我们想做的，不是一个能刷网页的玩具，而是把产教融合写成一段可以被触摸的叙事。</li>
+      </ol>
     </div>
-    <p class="small">说明：这里用的是浏览器内置语音，音色有限。比赛演示升级版可以接入科大讯飞在线语音合成 API，换成更自然、更有情感的音色——同一段文字，效果会完全不同。</p>
+
+    <audio id="voice-audio" preload="auto" src="assets/voice/line01.mp3"></audio>
+
+    <p class="small">这段声音是提前用合成引擎做成音频文件的，所以微信、夸克、百度这些浏览器都放得出来——它不依赖浏览器自带的语音接口。正式版接上科大讯飞在线语音合成，音色会比现在自然得多。</p>
   </section>
 
   <section class="block" data-reveal>

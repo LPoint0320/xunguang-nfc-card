@@ -1,9 +1,8 @@
 /* =====================================================================
-   讯光 · NFC 文创卡 —— 页面交互
+   NFC 文创卡 —— 页面交互
    1) 滚动入场动画
-   2) 语音朗读（浏览器内置语音合成，离线可用）
+   2) 声音体验：播放音频文件，逐句高亮（不依赖浏览器语音接口，微信/夸克/百度都能放）
    3) 访问信息 / 分享 / 复制链接
-   4) 检测 Web NFC 能力（支持时提示可直接改写卡片网址）
    ===================================================================== */
 
 (function () {
@@ -27,97 +26,164 @@
     reveals.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
-  /* ---------------------------------------------------- 2. 语音朗读 */
-  var NARRATION = [
-    '讯光，一张可以用手机碰开的文创卡。',
-    '它没有电池，只靠手机发出的电磁场被唤醒。当手机靠近卡片，卡片里的一段网址被读出，浏览器随即打开你现在看到的这个页面。',
-    '科大讯飞成立于一九九九年，总部位于安徽合肥。二十多年里，它一直在做同一件事：让机器不仅能听到声音，也能听懂内容，并且用自然的方式回应人。',
-    '语音合成、语音识别、自然语言理解，这些能力被带进了课堂、医院、汽车和城市。二零二三年发布的讯飞星火认知大模型，进一步把理解与生成的能力接进了教育与产业。',
-    '这张卡没有电池。手机靠近时，线圈从手机的电磁场里取得一点点电，把卡片里的网址交给手机，浏览器随即打开你现在看到的这个页面。',
-    '不需要装应用，不需要配对，也不需要打开什么开关。碰一下，就是全部的操作。',
-    '我们想做的，不是一个能刷网页的玩具，而是把产教融合写成一段可以被触摸的叙事。碰一下，听见 AI 的声音。'
-  ];
+  /* ---------------------------------------------------- 2. 声音体验 */
+  var listEl = document.getElementById('voice-lines');
+  var lines = listEl ? [].slice.call(listEl.querySelectorAll('li')) : [];
+  var clips = lines.map(function (li) { return li.getAttribute('data-src'); });
 
-  var synth = window.speechSynthesis;
-  var zhVoice = null;
-  var speaking = false;
+  var audio = document.getElementById('voice-audio');
+  var heroBtn = document.getElementById('tts-btn');
+  var heroLabel = document.getElementById('tts-label');
+  var heroVoice = document.getElementById('hero-voice');
+  var heroVoiceText = document.getElementById('hero-voice-text');
+  var heroMore = document.getElementById('hero-more');
+  var playBtn = document.getElementById('voice-play');
+  var playLabel = document.getElementById('voice-play-label');
+  var speedBtns = [].slice.call(document.querySelectorAll('.speed button'));
 
-  var btnA = document.getElementById('tts-btn');
-  var btnB = document.getElementById('tts-btn-2');
-  var stopBtn = document.getElementById('stop-btn');
-  var labelA = document.getElementById('tts-label');
-  var labelB = document.getElementById('tts-label-2');
+  var current = -1;
+  var mode = null;       // 'hook' = 只念第一句；'all' = 念完整段
+  var rate = 1;
+  var paused = false;
 
-  function pickVoice() {
-    if (!synth) return;
-    var list = synth.getVoices() || [];
-    for (var i = 0; i < list.length; i++) {
-      var v = list[i];
-      if (/zh[-_]?(CN|Hans)/i.test(v.lang) || /Chinese|中文|普通话|婷婷|Tingting|Yunxi|Xiaoxiao/i.test(v.name)) {
-        zhVoice = v;
-        return;
+  function mark(i) {
+    for (var k = 0; k < lines.length; k++) {
+      lines[k].classList.toggle('is-on', k === i);
+    }
+  }
+
+  function setHeroVoice(on, text) {
+    if (!heroVoice) return;
+    if (on) {
+      heroVoice.hidden = false;
+      if (heroVoiceText && text) heroVoiceText.textContent = text;
+    } else {
+      heroVoice.hidden = true;
+    }
+  }
+
+  function setLabels(state) {
+    // state: 'idle' | 'playing' | 'paused' | 'done' | 'blocked'
+    if (heroLabel) {
+      heroLabel.textContent =
+        state === 'playing' ? '正在朗读…' :
+        state === 'paused' ? '继续听' :
+        state === 'done' ? '再听一遍' :
+        '点一下，听它开口';
+    }
+    if (playLabel) {
+      playLabel.textContent =
+        state === 'playing' ? '暂停' :
+        state === 'paused' ? '继续播放' :
+        state === 'done' ? '再听一遍' :
+        '播放全部';
+    }
+    if (playBtn) playBtn.classList.toggle('is-playing', state === 'playing');
+    if (heroBtn) heroBtn.classList.toggle('is-playing', state === 'playing');
+  }
+
+  function onBlocked() {
+    paused = false;
+    current = -1;
+    mark(-1);
+    setHeroVoice(false);
+    setLabels('blocked');
+    if (heroBtn) heroBtn.classList.add('is-calling');
+    if (playLabel) playLabel.textContent = '播放全部';
+  }
+
+  function playFrom(i, playAll) {
+    if (!audio || !clips.length || i >= clips.length) return;
+    current = i;
+    mode = playAll ? 'all' : 'hook';
+    paused = false;
+    audio.src = clips[i];
+    audio.playbackRate = rate;
+    mark(i);
+    setHeroVoice(true, lines[i] ? lines[i].textContent.trim() : '正在朗读…');
+    setLabels('playing');
+    if (heroMore) heroMore.hidden = true;
+
+    var p = audio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(function () { onBlocked(); });
+    }
+  }
+
+  function pauseIt() {
+    if (!audio) return;
+    audio.pause();
+    paused = true;
+    setHeroVoice(false);
+    setLabels('paused');
+  }
+
+  function resumeIt() {
+    if (!audio) return;
+    paused = false;
+    audio.playbackRate = rate;
+    setHeroVoice(true, lines[current] ? lines[current].textContent.trim() : '正在朗读…');
+    setLabels('playing');
+    var p = audio.play();
+    if (p && typeof p.catch === 'function') p.catch(function () { onBlocked(); });
+  }
+
+  function finishIt() {
+    mark(-1);
+    setHeroVoice(false);
+    setLabels('done');
+    if (mode === 'hook' && heroMore) heroMore.hidden = false;
+    current = -1;
+    mode = null;
+  }
+
+  if (audio && clips.length) {
+    audio.onended = function () {
+      if (mode === 'all' && current >= 0 && current < clips.length - 1) {
+        playFrom(current + 1, true);
+      } else {
+        finishIt();
       }
+    };
+
+    // 进页面自动尝试念第一句：能自动就自动，被浏览器拦下就退成"点一下"
+    var auto = audio.play();
+    if (auto && typeof auto.catch === 'function') {
+      auto.catch(function () { onBlocked(); });
     }
-    for (var j = 0; j < list.length; j++) {
-      if (/^zh/i.test(list[j].lang)) { zhVoice = list[j]; return; }
-    }
+    window.setTimeout(function () {
+      if (audio.paused && !paused) onBlocked();
+    }, 700);
+  } else {
+    setLabels('blocked');
   }
 
-  if (synth) {
-    pickVoice();
-    if (typeof synth.onvoiceschanged !== 'undefined') {
-      synth.onvoiceschanged = pickVoice;
-    }
-  }
-
-  function setLabels(text) {
-    if (labelA) labelA.textContent = text;
-    if (labelB) labelB.textContent = text;
-  }
-
-  function stopSpeaking() {
-    if (!synth) return;
-    speaking = false;
-    synth.cancel();
-    setLabels('听它朗读');
-    if (labelB) labelB.textContent = '朗读这张卡的介绍';
-  }
-
-  function speak(fromIndex) {
-    if (!synth) {
-      setLabels('当前浏览器不支持语音');
-      return;
-    }
-    synth.cancel();
-    speaking = true;
-    setLabels('朗读中…');
-
-    NARRATION.forEach(function (text, i) {
-      var u = new SpeechSynthesisUtterance(text);
-      u.lang = 'zh-CN';
-      u.rate = 0.98;
-      u.pitch = 1.0;
-      u.volume = 1.0;
-      if (zhVoice) u.voice = zhVoice;
-      if (i === NARRATION.length - 1) {
-        u.onend = function () {
-          speaking = false;
-          setLabels('再听一遍');
-        };
-      }
-      synth.speak(u);
+  if (heroBtn) {
+    heroBtn.addEventListener('click', function () {
+      heroBtn.classList.remove('is-calling');
+      if (!audio) return;
+      if (!audio.paused) { pauseIt(); return; }
+      if (paused && current >= 0 && mode === 'hook') { resumeIt(); return; }
+      playFrom(0, false);   // 只念第一句，四秒多
     });
   }
 
-  function toggle() {
-    if (speaking) { stopSpeaking(); } else { speak(0); }
+  if (playBtn) {
+    playBtn.addEventListener('click', function () {
+      if (!audio) return;
+      if (!audio.paused) { pauseIt(); return; }
+      if (paused && current >= 0) { resumeIt(); return; }
+      playFrom(0, true);    // 完整七句
+    });
   }
 
-  if (btnA) btnA.addEventListener('click', toggle);
-  if (btnB) btnB.addEventListener('click', function () { speak(0); });
-  if (stopBtn) stopBtn.addEventListener('click', stopSpeaking);
-
-  window.addEventListener('pagehide', function () { if (synth) synth.cancel(); });
+  speedBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      rate = parseFloat(b.getAttribute('data-rate')) || 1;
+      speedBtns.forEach(function (x) { x.classList.toggle('is-on', x === b); });
+      if (audio && !audio.paused) audio.playbackRate = rate;
+    });
+  });
 
   /* ---------------------------------------------------- 3. 页面信息 */
   var originLine = document.getElementById('origin-line');
@@ -125,7 +191,7 @@
 
   var visitLine = document.getElementById('visit-line');
   if (visitLine) {
-    var KEY = 'xunguang_visits';
+    var KEY = 'nfc_card_visits';
     var n = 0;
     try {
       n = parseInt(window.localStorage.getItem(KEY) || '0', 10) || 0;
@@ -179,10 +245,5 @@
       }
     });
   }
-
-  /* ---------------------------------------------------- 4. 关于写卡工具 */
-  // 写卡工具（writer.html）故意不做任何页面入口。
-  // 它能改写甚至锁定 NFC 卡片，公开引流只会带来误操作，没有任何好处。
-  // 需要写卡时直接访问：https://lpoint0320.github.io/xunguang-nfc-card/writer.html
 
 })();
