@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>讯光 · NFC 文创卡 | 科大讯飞产教融合 X+AI 共创计划</title>
+<meta name="description" content="一张可以用手机碰开的文创卡：碰一下，认识科大讯飞，也看见产教融合里的自己。">
+<meta name="theme-color" content="#0B5FA5">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<noscript><style>[data-reveal]{opacity:1 !important;transform:none !important}</style></noscript>
+</head>
+<body>
+
+<!-- ===================================================================
+     作品：讯光 · NFC 文创卡
+     用途：科大讯飞产教融合「X+AI 文创共创计划」参赛作品
+     说明：纯静态页面，不依赖任何外部 CDN，断网局域网也能正常打开
+     =================================================================== -->
+
+<div class="grain" aria-hidden="true"></div>
+
+<header class="hero">
+  <div class="hero-top">
+    <span class="badge">科大讯飞产教融合 · X+AI 文创共创计划</span>
+  </div>
+
+  
+
+  <h1 class="hero-title">讯光</h1>
+  <p class="hero-sub">NFC 文创卡 · 碰一下，听见 AI 的声音</p>
+  <p class="hero-desc">您正在通过一张实体卡片访问本页面。<br>它没有电池，只靠手机的电磁场被唤醒。</p>
+
+  <div class="hero-actions">
+    <button id="tts-btn" class="btn btn-primary" type="button">
+      <span class="btn-icon" aria-hidden="true">▶</span><span id="tts-label">听它朗读</span>
+    </button>
+    <a class="btn btn-ghost" href="#about">认识科大讯飞</a>
+  </div>
+
+  <p class="nfc-flag"><span class="dot" aria-hidden="true"></span>由实体卡片唤醒 · 碰一碰或扫码均可</p>
+</header>
+
+<main>
+
+  <section class="block showcase" data-reveal>
+    <h2><span class="num">00</span>作品形象</h2>
+    <p class="muted">把科大讯飞的品牌基因，做成一个能被记住的角色。</p>
+    <div class="shots">
+      <figure class="shot">
+        <img src="assets/mascot.png" alt="科大讯飞萌化形象" loading="lazy">
+        <figcaption>萌化形象</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/card.png" alt="NFC 文创卡实物照片" loading="lazy">
+        <figcaption>卡片实物</figcaption>
+      </figure>
+    </div>
+    <p class="hint">这两格目前是占位图。把图片放进 assets/ 目录，分别命名为 mascot.png（AI 生成的萌化形象）和 card.png（卡片实物照片）即可自动替换。单张建议压缩到 300 KB 以内、宽度 1200 px 左右，手机打开会更快。</p>
+  </section>
+
+  <section class="block" id="about" data-reveal>
+    <h2><span class="num">01</span>关于科大讯飞</h2>
+    <p class="lead">让机器能听会说，能理解会思考。</p>
+    <!-- 以下事实性内容请以讯飞官方资料为准后定稿 -->
+    <p>科大讯飞股份有限公司成立于 1999 年，总部位于安徽合肥，是长期深耕智能语音与人工智能方向的上市企业。二十多年里，它的技术重心一直落在一件事上：让机器不仅能"听"到声音，也能"听懂"内容，并且用自然的方式回应人。</p>
+    <p>围绕语音合成、语音识别、自然语言理解、机器认知等核心技术，这些能力被带进了课堂、医院、汽车和城市治理等真实场景。2023 年发布的讯飞星火认知大模型，进一步把"理解与生成"的能力接进了教育与产业。</p>
+
+    <ul class="facts">
+      <li><strong>1999</strong><span>成立年份</span></li>
+      <li><strong>合肥</strong><span>总部所在地</span></li>
+      <li><strong>星火</strong><span>认知大模型</span></li>
+      <li><strong>产教融合</strong><span>与高校同行</span></li>
+    </ul>
+  </section>
+
+  <section class="block" data-reveal>
+    <h2><span class="num">02</span>它究竟在做什么</h2>
+    <div class="cards">
+      <article class="card">
+        <h3>语音合成</h3>
+        <p>把文字变成自然、有情感的声音。你手机里念出这段介绍的声音，就属于同一类技术。</p>
+      </article>
+      <article class="card">
+        <h3>语音识别</h3>
+        <p>让机器在嘈杂环境里也听得清、听得懂，包括方言与口音。</p>
+      </article>
+      <article class="card">
+        <h3>讯飞星火大模型</h3>
+        <p>不只是"接话"，而是理解、推理与生成，能写、能答、能当学习伙伴。</p>
+      </article>
+      <article class="card">
+        <h3>智慧教育 · 智慧医疗</h3>
+        <p>技术真正的考场不在实验室，而在课堂、在医院、在每一个具体岗位上。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block block-tint" data-reveal>
+    <h2><span class="num">03</span>产教融合，与我们的位置</h2>
+    <p>「X+AI 文创共创计划」要做的，不是一次单纯的设计比赛。它把设计专业同学的创意表达，和计算机、人工智能、物联网专业同学的技术实现放在同一张桌子上，让作品从"好看"走到"能落地"。</p>
+    <p>我们的选择是：不把产教融合写成一段文案，而是把它做成一张能被"触碰"的实体卡。卡片是设计的载体，NFC 是技术的入口，扫描之后打开的页面，是这段校企协同叙事的正文。</p>
+    <div class="quote">
+      <p>学生共创 → 院校协同 → 企业评审 → 供应链转化</p>
+    </div>
+  </section>
+
+  
+
+  <section class="block block-deep" data-reveal>
+    <h2><span class="num">04</span>试一试声音</h2>
+    <p>页面内置了一段浏览器语音合成，用来演示"文字变声音"这件事。它跑在你的手机本地，所以离线也能用。</p>
+    <div class="voice">
+      <button id="tts-btn-2" class="btn btn-light" type="button"><span class="btn-icon" aria-hidden="true">🔊</span><span id="tts-label-2">朗读这张卡的介绍</span></button>
+      <button id="stop-btn" class="btn btn-outline-light" type="button">停止</button>
+    </div>
+    <p class="small">说明：这里用的是浏览器内置语音，音色有限。比赛演示升级版可以接入科大讯飞在线语音合成 API，换成更自然、更有情感的音色——同一段文字，效果会完全不同。</p>
+  </section>
+
+  <section class="block" data-reveal>
+    <h2><span class="num">05</span>继续了解</h2>
+    <div class="links">
+      <a class="link-card" href="https://www.iflytek.com/" target="_blank" rel="noreferrer">
+        <strong>科大讯飞官网</strong><span>企业动态、技术与业务全貌</span>
+      </a>
+      <a class="link-card" href="https://xinghuo.xfyun.cn/" target="_blank" rel="noreferrer">
+        <strong>讯飞星火大模型</strong><span>在线体验：问它一个关于 AI 学习的问题</span>
+      </a>
+      <a class="link-card" href="https://www.xfyun.cn/" target="_blank" rel="noreferrer">
+        <strong>讯飞开放平台</strong><span>语音合成、语音识别等能力可以在这里调用</span>
+      </a>
+    </div>
+    <p class="hint">这三条链接是外链，需要联网。本页其余部分在局域网内即可完整浏览。</p>
+  </section>
+
+  <section class="block block-tint" id="about-page" data-reveal>
+    <h2><span class="num">06</span>关于本页</h2>
+    <div class="spec">
+      <div class="spec-row"><span class="spec-k">团队</span><span class="spec-v" id="team-line">（请在 PPT 与页脚补充团队署名：院校 · 专业 · 分工）</span></div>
+      <div class="spec-row"><span class="spec-k">AI 使用</span><span class="spec-v">本页的版式、配色方案与文案初稿由 AI 工具辅助生成，经过人工筛选、改写与排版；卡片视觉与插画同样包含 AI 生成内容。生成过程与提示词记录随作品一并提交。</span></div>
+      <div class="spec-row"><span class="spec-k">品牌素材</span><span class="spec-v">页面中涉及的科大讯飞标识与名称，仅用于本次校内共创活动的作品展示，不作商业用途；校徽等素材的使用已按学校要求申请授权。</span></div>
+      <div class="spec-row"><span class="spec-k">访问地址</span><span class="spec-v" id="origin-line">—</span></div>
+      <div class="spec-row"><span class="spec-k">本机访问次数</span><span class="spec-v" id="visit-line">—</span></div>
+    </div>
+    <div class="share-row">
+      <button id="share-btn" class="btn btn-ghost" type="button">分享本页</button>
+      <button id="copy-btn" class="btn btn-ghost" type="button">复制链接</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p class="foot-title">讯光 · NFC 文创卡</p>
+  <p>科大讯飞产教融合「X+AI 文创共创计划」参赛作品</p>
+  <p class="foot-note">碰一下，听见 AI 的声音。</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

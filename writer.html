@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>写卡工具 · 讯光 NFC 文创卡</title>
+<meta name="theme-color" content="#0B5FA5">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .tool{max-width:720px;margin:0 auto;background:#fff;padding:26px 22px 60px}
+  .tool h1{font-size:22px;margin:0 0 6px}
+  .tool .sub{color:var(--ink-soft);font-size:14px;margin:0 0 22px}
+  .field{margin:0 0 16px}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:.05em}
+  .field input{
+    width:100%;min-height:46px;padding:10px 14px;font-size:15px;
+    font-family:inherit;color:var(--ink);
+    border:1px solid var(--line);border-radius:12px;background:#fff;
+  }
+  .field input:focus{outline:2px solid rgba(44,155,214,.35);border-color:var(--cyan)}
+  .row{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px}
+  .log{
+    margin-top:16px;padding:14px 16px;min-height:96px;
+    background:#0F1B26;color:#CFE6F5;border-radius:14px;
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:12.5px;line-height:1.75;white-space:pre-wrap;word-break:break-all;
+  }
+  .warn{
+    margin-top:18px;padding:12px 14px;font-size:13.5px;line-height:1.8;color:var(--ink-soft);
+    background:var(--mist);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;
+  }
+  .back{display:inline-block;margin-bottom:18px;font-size:13px;color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="tool">
+  <a class="back" href="index.html">← 返回卡片页面</a>
+  <h1>写卡工具</h1>
+  <p class="sub">把一段网址写进 NT3H2111 / NT3H2211（NTAG I²C plus）的 NDEF 记录里。</p>
+
+  <div class="field">
+    <label for="url">要写入卡片的网址</label>
+    <input id="url" type="url" inputmode="url" placeholder="https://example.com/kafang" autocomplete="off">
+  </div>
+
+  <div class="row">
+    <button id="write-btn" class="btn btn-primary" type="button">写入卡片</button>
+    <button id="read-btn" class="btn btn-ghost" type="button">读取卡片现有内容</button>
+    <button id="lock-btn" class="btn btn-ghost" type="button">设为只读</button>
+  </div>
+
+  <div id="log" class="log">等待操作…</div>
+
+  <div class="warn">
+    <strong>使用前提：</strong>Web NFC 只在 <strong>安卓版 Chrome / Edge</strong>，且页面处于
+    <strong>HTTPS 或本机 localhost</strong> 时才可用。如果你是让手机访问电脑的局域网地址
+    （http://192.168.x.x:8000），浏览器会拒绝 Web NFC，请改用手机上的 NFC 工具类 App 写卡，
+    具体步骤见 README.md。<br>
+    「设为只读」是不可逆操作，锁定后卡片将永久无法再改写，演示卡请勿随意锁定。
+  </div>
+</div>
+
+<script>
+(function () {
+  var logEl = document.getElementById('log');
+  var urlEl = document.getElementById('url');
+  var supported = ('NDEFReader' in window);
+
+  function log(msg) {
+    logEl.textContent += '\n' + msg;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function clearLog(msg) { logEl.textContent = msg; }
+
+  urlEl.value = location.origin.replace(/\/$/, '') + '/index.html';
+
+  if (!supported) {
+    clearLog('当前浏览器不支持 Web NFC。\n请用安卓版 Chrome 打开本页，或改用 NFC 工具类 App 写卡。');
+  } else {
+    clearLog('环境检测通过：当前浏览器支持 Web NFC。\n把手机贴到卡片感应区，再点「写入卡片」。');
+  }
+
+  document.getElementById('write-btn').addEventListener('click', function () {
+    var url = (urlEl.value || '').trim();
+    if (!supported) { log('无法写入：当前环境不支持 Web NFC。'); return; }
+    if (!/^https?:\/\//i.test(url)) { log('网址需要以 http:// 或 https:// 开头。'); return; }
+
+    var reader = new NDEFReader();
+    log('已启动，等待卡片靠近…');
+    reader.write({ records: [{ recordType: 'url', data: url }] }).then(function () {
+      log('写入成功：' + url);
+    }).catch(function (e) {
+      log('写入失败：' + e.message);
+    });
+  });
+
+  document.getElementById('read-btn').addEventListener('click', function () {
+    if (!supported) { log('无法读取：当前环境不支持 Web NFC。'); return; }
+    var reader = new NDEFReader();
+    reader.scan().then(function () {
+      log('已启动读取，等待卡片靠近…');
+    }).catch(function (e) {
+      log('读取启动失败：' + e.message);
+    });
+    reader.onreading = function (event) {
+      var out = ['卡片已读到。序列号：' + (event.serialNumber || '未知')];
+      var records = event.message.records || [];
+      if (!records.length) out.push('（卡片里没有 NDEF 记录）');
+      records.forEach(function (r, i) {
+        var text = '';
+        try {
+          if (r.recordType === 'url' || r.recordType === 'absolute-url') {
+            text = new TextDecoder(r.encoding || 'utf-8').decode(r.data);
+          } else if (r.recordType === 'text') {
+            text = new TextDecoder(r.encoding || 'utf-8').decode(r.data);
+          } else {
+            text = r.recordType + '（' + (r.data ? r.data.byteLength : 0) + ' 字节）';
+          }
+        } catch (err) { text = '(无法解码)'; }
+        out.push('  #' + (i + 1) + '  ' + r.recordType + ' → ' + text);
+      });
+      clearLog(out.join('\n'));
+    };
+    reader.onreadingerror = function () {
+      log('读取出错：请把卡片重新贴近手机背面。');
+    };
+  });
+
+  document.getElementById('lock-btn').addEventListener('click', function () {
+    if (!supported) { log('无法锁定：当前环境不支持 Web NFC。'); return; }
+    if (!window.confirm('锁定后卡片将永久无法改写，确定继续吗？')) return;
+    var reader = new NDEFReader();
+    reader.makeReadOnly().then(function () {
+      log('卡片已设为只读。');
+    }).catch(function (e) {
+      log('锁定失败：' + e.message);
+    });
+  });
+})();
+</script>
+</body>
+</html>
