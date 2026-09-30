@@ -42,7 +42,7 @@
     <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     <span id="hero-voice-text">正在朗读…</span>
   </p>
-  <p class="hero-more" id="hero-more" hidden><a href="#voice">继续听完整介绍 →</a></p>
+  <p class="hero-more" id="hero-more" hidden><a href="#about">继续了解 →</a></p>
 
   <p class="nfc-flag"><span class="dot" aria-hidden="true"></span>由实体卡片唤醒 · 碰一碰或扫码均可</p>
 </header>
@@ -113,40 +113,9 @@
 
   
 
-  <section class="block block-deep" id="voice" data-reveal>
-    <h2><span class="num">04</span>试一试声音</h2>
-    <p>下面这段话不是录音，是<strong>由机器把文字念出来的</strong>。七句话，逐句听完，就是一次完整的"文字变声音"。</p>
-
-    <div class="player">
-      <div class="player-bar">
-        <button id="voice-play" class="btn btn-light" type="button">
-          <span class="btn-icon" aria-hidden="true">▶</span><span id="voice-play-label">播放全部</span>
-        </button>
-        <div class="speed" role="group" aria-label="语速">
-          <button type="button" data-rate="0.85">慢</button>
-          <button type="button" data-rate="1" class="is-on">正常</button>
-          <button type="button" data-rate="1.15">快</button>
-        </div>
-      </div>
-
-      <ol class="lines" id="voice-lines">
-        <li data-src="assets/voice/line01.mp3">这是一张可以用手机碰开的文创卡。</li>
-        <li data-src="assets/voice/line02.mp3">它没有电池。手机靠近时，线圈从手机的电磁场里取得一点点电，把卡片里的网址交给手机。</li>
-        <li data-src="assets/voice/line03.mp3">科大讯飞成立于 1999 年，总部位于安徽合肥。二十多年里，它一直在做同一件事：让机器不仅能听到声音，也能听懂内容。</li>
-        <li data-src="assets/voice/line04.mp3">语音合成、语音识别、自然语言理解，这些能力被带进了课堂、医院、汽车和城市。</li>
-        <li data-src="assets/voice/line05.mp3">2023 年发布的讯飞星火认知大模型，把理解与生成的能力接进了教育与产业。</li>
-        <li data-src="assets/voice/line06.mp3">不需要装应用，不需要配对，也不需要打开什么开关。碰一下，就是全部的操作。</li>
-        <li data-src="assets/voice/line07.mp3">我们想做的，不是一个能刷网页的玩具，而是把产教融合写成一段可以被触摸的叙事。</li>
-      </ol>
-    </div>
-
-    <audio id="voice-audio" preload="auto" src="assets/voice/line01.mp3"></audio>
-
-    <p class="small">这段声音是提前用合成引擎做成音频文件的，所以微信、夸克、百度这些浏览器都放得出来——它不依赖浏览器自带的语音接口。正式版接上科大讯飞在线语音合成，音色会比现在自然得多。</p>
-  </section>
 
   <section class="block" data-reveal>
-    <h2><span class="num">05</span>继续了解</h2>
+    <h2><span class="num">04</span>继续了解</h2>
     <div class="links">
       <a class="link-card" href="https://www.iflytek.com/" target="_blank" rel="noreferrer">
         <strong>科大讯飞官网</strong><span>企业动态、技术与业务全貌</span>
@@ -162,7 +131,7 @@
   </section>
 
   <section class="block block-tint" id="about-page" data-reveal>
-    <h2><span class="num">06</span>关于本页</h2>
+    <h2><span class="num">05</span>关于本页</h2>
     <div class="spec">
       <div class="spec-row"><span class="spec-k">团队</span><span class="spec-v" id="team-line">（请在 PPT 与页脚补充团队署名：院校 · 专业 · 分工）</span></div>
       <div class="spec-row"><span class="spec-k">AI 使用</span><span class="spec-v">本页的版式、配色方案与文案初稿由 AI 工具辅助生成，经过人工筛选、改写与排版；卡片视觉与插画同样包含 AI 生成内容。生成过程与提示词记录随作品一并提交。</span></div>
@@ -184,12 +153,14 @@
 </footer>
 
 <!-- ============================ 浮窗导览员 ============================ -->
+<audio id="voice-audio" preload="auto" src="assets/voice/line01.mp3"></audio>
+
 <div class="buddy-wrap" id="buddy-wrap">
   <div class="buddy-menu" id="buddy-menu" hidden role="menu" aria-label="快捷动作">
     <button type="button" role="menuitem" data-go="#about" data-say="assets/voice/nav01.mp3"
             data-text="好，我们去看科大讯飞在做什么。">带我看讯飞在做什么</button>
-    <button type="button" role="menuitem" data-go="#voice" data-say="assets/voice/nav02.mp3"
-            data-text="这就是这张卡的声音，一起听。" data-play="1">听听这张卡的声音</button>
+    <button type="button" role="menuitem" data-say="assets/voice/nav02.mp3" data-then-hook="1"
+            data-text="这就是这张卡的声音，一起听。">听听我能念什么</button>
     <button type="button" role="menuitem" data-go="#showcase" data-say="assets/voice/nav03.mp3"
             data-text="先看看我长什么样。">先看看我长什么样</button>
     <button type="button" role="menuitem" data-go="#about-page" data-say="assets/voice/nav04.mp3"
@@ -197,9 +168,7 @@
   </div>
   <p class="buddy-bubble" id="buddy-bubble" hidden></p>
   <div class="buddy" id="buddy" role="button" tabindex="0"
-       aria-label="页面向导：点一下打开快捷动作，长按可以和我说话">
-    <img src="assets/mascot-cut.png" alt="">
-  </div>
+       aria-label="页面向导：点一下打开快捷动作，再点一下收起，长按可以和我说话"></div>
 </div>
 
 <script src="app.js"></script>

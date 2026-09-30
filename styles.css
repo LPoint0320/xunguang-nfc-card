@@ -704,3 +704,41 @@ main{padding:0 22px 34px}
   .buddy-wrap{width:88px}
   .buddy{width:88px;height:88px}
 }
+
+/* ------------------------------------------------------------ 浮窗形象（内联 SVG） */
+.bd-svg{display:block;width:100%;height:100%;overflow:visible}
+
+.bd-eyes{animation:bdBlink 5.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bdBlink{0%,91%,100%{transform:scaleY(1)}94%{transform:scaleY(.12)}}
+
+.bd-wave .bd-arc path{animation:bdArc 1.9s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.bd-wave .bd-arc path:last-child{animation-delay:.18s}
+@keyframes bdArc{0%,100%{opacity:.3;transform:scale(.92)}50%{opacity:1;transform:scale(1.04)}}
+
+.bd-spark .bd-spin{animation:bdTilt 5.4s ease-in-out infinite;transform-box:view-box;transform-origin:48px 48px}
+@keyframes bdTilt{0%,100%{transform:rotate(-9deg) scale(1)}50%{transform:rotate(9deg) scale(1.05)}}
+.bd-spark .bd-sat{animation:bdOrbit 7s linear infinite;transform-box:view-box;transform-origin:48px 48px}
+.bd-spark .bd-sat2{animation:bdOrbit 11s linear infinite reverse;transform-box:view-box;transform-origin:48px 48px}
+@keyframes bdOrbit{to{transform:rotate(360deg)}}
+
+.bd-blink{animation:bdPulse 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bdPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.78)}}
+
+.bd-nfc{animation:bdNfc 2.4s ease-in-out infinite}
+@keyframes bdNfc{0%,100%{opacity:.35}50%{opacity:1}}
+
+.bd-card .bd-wings path{animation:bdFlap 1.7s ease-in-out infinite}
+.bd-card .bd-wings path:first-child{transform-box:fill-box;transform-origin:right center}
+.bd-card .bd-wings path:last-child{transform-box:fill-box;transform-origin:left center}
+@keyframes bdFlap{0%,100%{transform:rotate(0) scaleX(1)}50%{transform:rotate(-13deg) scaleX(.84)}}
+
+/* 说话时动得更快一点 */
+.buddy.is-speaking .bd-arc path,
+.buddy.is-speaking .bd-nfc{animation-duration:.8s}
+.buddy.is-speaking .bd-eyes{animation-duration:1.6s}
+
+@media (prefers-reduced-motion:reduce){
+  .bd-eyes,.bd-arc path,.bd-spin,.bd-sat,.bd-sat2,.bd-blink,.bd-nfc,.bd-wings path{animation:none}
+}
+
+.buddy svg{width:100%;height:100%;display:block}

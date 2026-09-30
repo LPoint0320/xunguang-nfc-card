@@ -1,8 +1,9 @@
 /* =====================================================================
-   NFC 文创卡 —— 页面交互
+   讯光 · NFC 文创卡 —— 页面交互
    1) 滚动入场动画
-   2) 声音体验：播放音频文件，逐句高亮（不依赖浏览器语音接口，微信/夸克/百度都能放）
-   3) 访问信息 / 分享 / 复制链接
+   2) 声音：进页面念第一句；导航语音由浮窗调用（全部是本地音频，零额度）
+   3) 浮窗导览员：拖动 / 点一下出菜单 / 再点一下收起 / 长按对话入口 / 每 30 秒提示
+   4) 访问信息与复制链接
    ===================================================================== */
 
 (function () {
@@ -26,166 +27,311 @@
     reveals.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
-  /* ---------------------------------------------------- 2. 声音体验 */
-  var listEl = document.getElementById('voice-lines');
-  var lines = listEl ? [].slice.call(listEl.querySelectorAll('li')) : [];
-  var clips = lines.map(function (li) { return li.getAttribute('data-src'); });
+  /* ---------------------------------------------------- 2. 声音 */
+  var HOOK_SRC = 'assets/voice/line01.mp3';
+  var HOOK_TEXT = '这是一张可以用手机碰开的文创卡。';
 
-  var audio = document.getElementById('voice-audio');
   var heroBtn = document.getElementById('tts-btn');
   var heroLabel = document.getElementById('tts-label');
   var heroVoice = document.getElementById('hero-voice');
   var heroVoiceText = document.getElementById('hero-voice-text');
   var heroMore = document.getElementById('hero-more');
-  var playBtn = document.getElementById('voice-play');
-  var playLabel = document.getElementById('voice-play-label');
-  var speedBtns = [].slice.call(document.querySelectorAll('.speed button'));
+  var hook = document.getElementById('voice-audio');
 
-  var current = -1;
-  var mode = null;       // 'hook' = 只念第一句；'all' = 念完整段
-  var rate = 1;
-  var paused = false;
+  var hookPlaying = false;
+  var hookBlocked = false;
+  var navAudio = new Audio();
+  navAudio.preload = 'auto';
 
-  function mark(i) {
-    for (var k = 0; k < lines.length; k++) {
-      lines[k].classList.toggle('is-on', k === i);
-    }
-  }
-
-  function setHeroVoice(on, text) {
+  function cap(on, text) {
     if (!heroVoice) return;
-    if (on) {
-      heroVoice.hidden = false;
-      if (heroVoiceText && text) heroVoiceText.textContent = text;
-    } else {
-      heroVoice.hidden = true;
-    }
+    heroVoice.hidden = !on;
+    if (on && heroVoiceText) heroVoiceText.textContent = text || '';
   }
 
-  function setLabels(state) {
-    // state: 'idle' | 'playing' | 'paused' | 'done' | 'blocked'
-    if (heroLabel) {
-      heroLabel.textContent =
-        state === 'playing' ? '正在朗读…' :
-        state === 'paused' ? '继续听' :
-        state === 'done' ? '再听一遍' :
-        '点一下，听它开口';
-    }
-    if (playLabel) {
-      playLabel.textContent =
-        state === 'playing' ? '暂停' :
-        state === 'paused' ? '继续播放' :
-        state === 'done' ? '再听一遍' :
-        '播放全部';
-    }
-    if (playBtn) playBtn.classList.toggle('is-playing', state === 'playing');
-    if (heroBtn) heroBtn.classList.toggle('is-playing', state === 'playing');
+  function heroState(s) {
+    if (!heroLabel) return;
+    heroLabel.textContent =
+      s === 'playing' ? '正在朗读…' :
+      s === 'blocked' ? '点一下，听它开口' :
+      s === 'done' ? '再听一遍' : '点一下，听它开口';
+    if (heroBtn) heroBtn.classList.toggle('is-playing', s === 'playing');
+    if (heroBtn) heroBtn.classList.toggle('is-calling', s === 'blocked');
   }
 
-  function onBlocked() {
-    paused = false;
-    current = -1;
-    mark(-1);
-    setHeroVoice(false);
-    setLabels('blocked');
-    if (heroBtn) heroBtn.classList.add('is-calling');
-    if (playLabel) playLabel.textContent = '播放全部';
+  function stopNav() {
+    try { navAudio.pause(); } catch (e) {}
   }
 
-  function playFrom(i, playAll) {
-    if (!audio || !clips.length || i >= clips.length) return;
-    current = i;
-    mode = playAll ? 'all' : 'hook';
-    paused = false;
-    audio.src = clips[i];
-    audio.playbackRate = rate;
-    mark(i);
-    setHeroVoice(true, lines[i] ? lines[i].textContent.trim() : '正在朗读…');
-    setLabels('playing');
+  function playHook() {
+    if (!hook) return;
+    stopNav();
+    hookPlaying = true;
+    cap(true, HOOK_TEXT);
+    heroState('playing');
     if (heroMore) heroMore.hidden = true;
-
-    var p = audio.play();
-    if (p && typeof p.catch === 'function') {
-      p.catch(function () { onBlocked(); });
-    }
+    var p = hook.play();
+    if (p && p.catch) p.catch(function () { onHookBlocked(); });
   }
 
-  function pauseIt() {
-    if (!audio) return;
-    audio.pause();
-    paused = true;
-    setHeroVoice(false);
-    setLabels('paused');
+  function onHookBlocked() {
+    hookPlaying = false;
+    hookBlocked = true;
+    cap(false);
+    heroState('blocked');
   }
 
-  function resumeIt() {
-    if (!audio) return;
-    paused = false;
-    audio.playbackRate = rate;
-    setHeroVoice(true, lines[current] ? lines[current].textContent.trim() : '正在朗读…');
-    setLabels('playing');
-    var p = audio.play();
-    if (p && typeof p.catch === 'function') p.catch(function () { onBlocked(); });
-  }
+  if (hook) {
+    hook.addEventListener('ended', function () {
+      hookPlaying = false;
+      cap(false);
+      heroState('done');
+      if (heroMore) heroMore.hidden = false;
+    });
 
-  function finishIt() {
-    mark(-1);
-    setHeroVoice(false);
-    setLabels('done');
-    if (mode === 'hook' && heroMore) heroMore.hidden = false;
-    current = -1;
-    mode = null;
-  }
-
-  if (audio && clips.length) {
-    audio.onended = function () {
-      if (mode === 'all' && current >= 0 && current < clips.length - 1) {
-        playFrom(current + 1, true);
-      } else {
-        finishIt();
-      }
-    };
-
-    // 进页面自动尝试念第一句：能自动就自动，被浏览器拦下就退成"点一下"
-    var auto = audio.play();
-    if (auto && typeof auto.catch === 'function') {
-      auto.catch(function () { onBlocked(); });
-    }
+    // 进页面先尝试自动念第一句；被浏览器拦下就退成"点一下"
+    var auto = hook.play();
+    if (auto && auto.catch) auto.catch(function () { onHookBlocked(); });
     window.setTimeout(function () {
-      if (audio.paused && !paused) onBlocked();
+      if (hook.paused && !hookBlocked) {
+        if (hook.currentTime === 0) onHookBlocked();
+      }
     }, 700);
-  } else {
-    setLabels('blocked');
   }
 
   if (heroBtn) {
     heroBtn.addEventListener('click', function () {
+      if (!hook) return;
       heroBtn.classList.remove('is-calling');
-      if (!audio) return;
-      if (!audio.paused) { pauseIt(); return; }
-      if (paused && current >= 0 && mode === 'hook') { resumeIt(); return; }
-      playFrom(0, false);   // 只念第一句，四秒多
+      hookBlocked = false;
+      if (!hook.paused) {
+        hook.pause();
+        hookPlaying = false;
+        cap(false);
+        heroState('blocked');
+        return;
+      }
+      if (hook.currentTime > 0.2 && hook.currentTime < hook.duration) {
+        hookPlaying = true;
+        cap(true, HOOK_TEXT);
+        heroState('playing');
+        var pr = hook.play();
+        if (pr && pr.catch) pr.catch(function () { onHookBlocked(); });
+        return;
+      }
+      hook.currentTime = 0;
+      playHook();
     });
   }
 
-  if (playBtn) {
-    playBtn.addEventListener('click', function () {
-      if (!audio) return;
-      if (!audio.paused) { pauseIt(); return; }
-      if (paused && current >= 0) { resumeIt(); return; }
-      playFrom(0, true);    // 完整七句
-    });
+  /* ---------------------------------------------------- 3. 浮窗导览员 */
+  var BUDDY_SVG = {
+  "wave": "<svg class=\"bd-svg bd-wave\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <defs>\n    <linearGradient id=\"bdWave\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0%\" stop-color=\"#63C3EA\"/><stop offset=\"100%\" stop-color=\"#0B5FA5\"/>\n    </linearGradient>\n  </defs>\n  <g class=\"bd-arc\" fill=\"none\" stroke=\"#2C9BD6\" stroke-width=\"3.4\" stroke-linecap=\"round\">\n    <path d=\"M20 34a30 30 0 0 1 0 26\"/>\n    <path d=\"M76 34a30 30 0 0 0 0 26\"/>\n  </g>\n  <ellipse cx=\"48\" cy=\"56\" rx=\"25\" ry=\"23\" fill=\"url(#bdWave)\"/>\n  <ellipse cx=\"38\" cy=\"44\" rx=\"10\" ry=\"6\" fill=\"#fff\" opacity=\".25\" transform=\"rotate(-22 38 44)\"/>\n  <g class=\"bd-eyes\" fill=\"#fff\">\n    <ellipse cx=\"39\" cy=\"54\" rx=\"6.4\" ry=\"7.2\"/>\n    <ellipse cx=\"57\" cy=\"54\" rx=\"6.4\" ry=\"7.2\"/>\n  </g>\n  <g fill=\"#123A5E\">\n    <circle cx=\"39.6\" cy=\"55\" r=\"3.1\"/><circle cx=\"57.6\" cy=\"55\" r=\"3.1\"/>\n  </g>\n  <path d=\"M42 66q6 5 12 0\" fill=\"none\" stroke=\"#123A5E\" stroke-width=\"2.4\" stroke-linecap=\"round\"/>\n  <circle cx=\"30\" cy=\"62\" r=\"3.4\" fill=\"#FFB7B7\" opacity=\".9\"/>\n  <circle cx=\"66\" cy=\"62\" r=\"3.4\" fill=\"#FFB7B7\" opacity=\".9\"/>\n</svg>",
+  "spark": "<svg class=\"bd-svg bd-spark\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <defs>\n    <linearGradient id=\"bdSparkA\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\">\n      <stop offset=\"0%\" stop-color=\"#2C9BD6\"/><stop offset=\"100%\" stop-color=\"#0B5FA5\"/>\n    </linearGradient>\n    <radialGradient id=\"bdSparkB\">\n      <stop offset=\"0%\" stop-color=\"#FFE7A6\"/><stop offset=\"100%\" stop-color=\"#C6A14A\"/>\n    </radialGradient>\n  </defs>\n  <g class=\"bd-spin\">\n    <path d=\"M48 8C52 34 62 44 88 48 62 52 52 62 48 88 44 62 34 52 8 48 34 44 44 34 48 8Z\"\n          fill=\"url(#bdSparkA)\"/>\n  </g>\n  <circle cx=\"48\" cy=\"48\" r=\"17\" fill=\"url(#bdSparkB)\" opacity=\".95\"/>\n  <g class=\"bd-eyes\" fill=\"#123A5E\">\n    <ellipse cx=\"42\" cy=\"47\" rx=\"3\" ry=\"3.6\"/>\n    <ellipse cx=\"54\" cy=\"47\" rx=\"3\" ry=\"3.6\"/>\n  </g>\n  <path d=\"M43 55q5 4 10 0\" fill=\"none\" stroke=\"#123A5E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/>\n  <circle class=\"bd-sat\" cx=\"48\" cy=\"14\" r=\"3.4\" fill=\"#2C9BD6\"/>\n  <circle class=\"bd-sat2\" cx=\"82\" cy=\"64\" r=\"2.6\" fill=\"#C6A14A\"/>\n</svg>",
+  "bot": "<svg class=\"bd-svg bd-bot\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <line x1=\"48\" y1=\"20\" x2=\"48\" y2=\"31\" stroke=\"#0B5FA5\" stroke-width=\"3.2\"/>\n  <circle class=\"bd-blink\" cx=\"48\" cy=\"15\" r=\"5.4\" fill=\"#C6A14A\"/>\n  <rect x=\"19\" y=\"30\" width=\"58\" height=\"48\" rx=\"17\" fill=\"#FFFFFF\" stroke=\"#0B5FA5\" stroke-width=\"3.6\"/>\n  <rect x=\"27\" y=\"40\" width=\"42\" height=\"26\" rx=\"11\" fill=\"#E7F3FA\"/>\n  <g class=\"bd-eyes\" fill=\"#0B5FA5\">\n    <ellipse cx=\"40\" cy=\"52\" rx=\"5.4\" ry=\"6.4\"/>\n    <ellipse cx=\"56\" cy=\"52\" rx=\"5.4\" ry=\"6.4\"/>\n  </g>\n  <g stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\" opacity=\".9\">\n    <path d=\"M40 50v4\"/><path d=\"M56 50v4\"/>\n  </g>\n  <g class=\"bd-nfc\" fill=\"none\" stroke=\"#2C9BD6\" stroke-width=\"2.6\" stroke-linecap=\"round\">\n    <path d=\"M42 70a11 11 0 0 1 0 0\"/>\n    <path d=\"M36 74a14 14 0 0 1 0-12\"/>\n    <path d=\"M60 74a14 14 0 0 0 0-12\"/>\n  </g>\n  <circle cx=\"30\" cy=\"63\" r=\"3\" fill=\"#FFB7B7\" opacity=\".85\"/>\n  <circle cx=\"66\" cy=\"63\" r=\"3\" fill=\"#FFB7B7\" opacity=\".85\"/>\n</svg>",
+  "card": "<svg class=\"bd-svg bd-card\" viewBox=\"0 0 96 96\" aria-hidden=\"true\">\n  <g class=\"bd-wings\" fill=\"#CFE7F6\">\n    <path d=\"M22 44q-12-8-16 2 8 8 16 6z\"/>\n    <path d=\"M74 44q12-8 16 2-8 8-16 6z\"/>\n  </g>\n  <rect x=\"24\" y=\"32\" width=\"48\" height=\"34\" rx=\"10\" fill=\"#FFFFFF\" stroke=\"#C6A14A\" stroke-width=\"3.2\"/>\n  <g class=\"bd-eyes\" fill=\"#0B5FA5\">\n    <ellipse cx=\"41\" cy=\"47\" rx=\"4.2\" ry=\"5\"/>\n    <ellipse cx=\"57\" cy=\"47\" rx=\"4.2\" ry=\"5\"/>\n  </g>\n  <path d=\"M43 56q5 4 10 0\" fill=\"none\" stroke=\"#0B5FA5\" stroke-width=\"2.3\" stroke-linecap=\"round\"/>\n  <circle cx=\"33\" cy=\"55\" r=\"2.8\" fill=\"#FFB7B7\" opacity=\".85\"/>\n  <circle cx=\"65\" cy=\"55\" r=\"2.8\" fill=\"#FFB7B7\" opacity=\".85\"/>\n  <g class=\"bd-nfc\" fill=\"none\" stroke=\"#2C9BD6\" stroke-width=\"2.5\" stroke-linecap=\"round\">\n    <path d=\"M78 40a16 16 0 0 1 0 20\"/>\n    <path d=\"M85 34a25 25 0 0 1 0 32\"/>\n  </g>\n</svg>"
+};
+  var BUDDY_STYLE = 'wave';      // 可选：wave / spark / bot / card
+
+  var wrap = document.getElementById('buddy-wrap');
+  var buddy = document.getElementById('buddy');
+  var menu = document.getElementById('buddy-menu');
+  var bubble = document.getElementById('buddy-bubble');
+  var pressTimer = null;
+  var longPressed = false;
+  var bubbleTimer = null;
+  var lastTouch = 0;
+  var hintIdx = 0;
+  var POS_KEY = 'buddy_pos';
+
+  var HINTS = [
+    '点我一下，我能带你跳到你想去的地方。',
+    '长按我，就能和我说话——这个功能正在接入中。',
+    '按住我可以拖动，把我放到顺手的位置。',
+    '再点我一次，就能把我这个菜单收起来。'
+  ];
+
+  if (buddy && BUDDY_SVG[BUDDY_STYLE]) {
+    buddy.innerHTML = BUDDY_SVG[BUDDY_STYLE];
   }
 
-  speedBtns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      rate = parseFloat(b.getAttribute('data-rate')) || 1;
-      speedBtns.forEach(function (x) { x.classList.toggle('is-on', x === b); });
-      if (audio && !audio.paused) audio.playbackRate = rate;
-    });
-  });
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-  /* ---------------------------------------------------- 3. 页面信息 */
+  function place(x, y, snap) {
+    var bw = wrap.offsetWidth || 76;
+    var m = 14;
+    var maxX = Math.max(m, window.innerWidth - bw - m);
+    var maxY = Math.max(m, window.innerHeight - bw - m);
+    x = clamp(x, m, maxX);
+    y = clamp(y, m, maxY);
+    if (snap) x = (x + bw / 2 < window.innerWidth / 2) ? m : maxX;
+    wrap.style.left = x + 'px';
+    wrap.style.top = y + 'px';
+    wrap.style.right = 'auto';
+    wrap.style.bottom = 'auto';
+    wrap.classList.toggle('on-left', x + bw / 2 < window.innerWidth / 2);
+    return { x: x, y: y };
+  }
+
+  function say(text, src, keep) {
+    if (bubble) {
+      bubble.textContent = text;
+      bubble.hidden = false;
+      window.clearTimeout(bubbleTimer);
+      bubbleTimer = window.setTimeout(function () { bubble.hidden = true; }, keep || 5200);
+    }
+    if (buddy) {
+      buddy.classList.add('is-speaking');
+      window.clearTimeout(buddy._spk);
+      buddy._spk = window.setTimeout(function () { buddy.classList.remove('is-speaking'); }, 2200);
+    }
+    if (src) {
+      stopNav();
+      navAudio.src = src;
+      var p = navAudio.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+  }
+
+  function closeMenu() {
+    if (menu) menu.hidden = true;
+    if (buddy) buddy.classList.remove('is-calling');
+  }
+
+  function openMenu() {
+    if (menu) menu.hidden = false;
+    if (buddy) buddy.classList.add('is-calling');
+  }
+
+  if (wrap && buddy) {
+    var saved = null;
+    try { saved = window.localStorage.getItem(POS_KEY); } catch (e) {}
+    if (saved) {
+      var parts = saved.split(',');
+      var sx = parseFloat(parts[0]), sy = parseFloat(parts[1]);
+      if (isFinite(sx) && isFinite(sy)) place(sx, sy, false);
+    }
+
+    window.addEventListener('resize', function () {
+      var r = wrap.getBoundingClientRect();
+      place(r.left, r.top, false);
+    });
+
+    var dragging = false, moved = false;
+    var startX = 0, startY = 0, offX = 0, offY = 0, downAt = 0;
+
+    buddy.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== undefined && ev.button !== 0) return;
+      dragging = true;
+      moved = false;
+      longPressed = false;
+      lastTouch = Date.now();
+      var r = wrap.getBoundingClientRect();
+      startX = ev.clientX; startY = ev.clientY;
+      offX = ev.clientX - r.left; offY = ev.clientY - r.top;
+      downAt = Date.now();
+      try { buddy.setPointerCapture(ev.pointerId); } catch (e) {}
+      window.clearTimeout(pressTimer);
+      pressTimer = window.setTimeout(function () {
+        if (!moved && dragging) {
+          longPressed = true;
+          closeMenu();
+          say('按住我，就能和我说话——对话功能正在接入，先点一下试试我都能做什么。', '');
+        }
+      }, 650);
+    });
+
+    buddy.addEventListener('pointermove', function (ev) {
+      if (!dragging) return;
+      var dx = Math.abs(ev.clientX - startX);
+      var dy = Math.abs(ev.clientY - startY);
+      if (!moved && dx + dy > 8) {
+        moved = true;
+        window.clearTimeout(pressTimer);
+        closeMenu();
+        wrap.classList.add('is-dragging');
+      }
+      if (moved) place(ev.clientX - offX, ev.clientY - offY, false);
+    });
+
+    function endPress() {
+      if (!dragging) return;
+      dragging = false;
+      window.clearTimeout(pressTimer);
+      wrap.classList.remove('is-dragging');
+      lastTouch = Date.now();
+      if (moved) {
+        var r = wrap.getBoundingClientRect();
+        var p2 = place(r.left, r.top, true);
+        try { window.localStorage.setItem(POS_KEY, p2.x + ',' + p2.y); } catch (e) {}
+        return;
+      }
+      if (longPressed) return;
+      if (Date.now() - downAt < 650) {
+        buddy.classList.add('is-pop');
+        window.setTimeout(function () { buddy.classList.remove('is-pop'); }, 360);
+        // 点一下开菜单；再点一下收起
+        if (menu && menu.hidden) { openMenu(); } else { closeMenu(); }
+      }
+    }
+
+    buddy.addEventListener('pointerup', endPress);
+    buddy.addEventListener('pointercancel', endPress);
+
+    buddy.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        lastTouch = Date.now();
+        if (menu && menu.hidden) { openMenu(); } else { closeMenu(); }
+      }
+      if (ev.key === 'Escape') closeMenu();
+    });
+
+    if (menu) {
+      menu.addEventListener('click', function (ev) {
+        var btn = ev.target.closest ? ev.target.closest('button') : null;
+        if (!btn) return;
+        lastTouch = Date.now();
+        var go = btn.getAttribute('data-go');
+        var src = btn.getAttribute('data-say');
+        var text = btn.getAttribute('data-text') || '';
+        var extra = btn.getAttribute('data-then-hook');
+        closeMenu();
+        if (go) {
+          var target = document.querySelector(go);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        say(text, src);
+        if (extra) {
+          window.setTimeout(function () { playHook(); }, 4600);
+        }
+      });
+
+      // 菜单打开时点以外的地方收起
+      document.addEventListener('pointerdown', function (ev) {
+        if (menu.hidden) return;
+        if (wrap.contains(ev.target)) return;
+        closeMenu();
+      });
+    }
+
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') closeMenu();
+    });
+
+    // 每 30 秒轮换一条"我能做什么"的提示；刚操作过、菜单开着、拖动中都不打扰
+    window.setInterval(function () {
+      if (document.hidden) return;
+      if (menu && !menu.hidden) return;
+      if (dragging) return;
+      if (Date.now() - lastTouch < 15000) return;
+      if (bubble && !bubble.hidden) return;
+      say(HINTS[hintIdx % HINTS.length], '', 6500);
+      hintIdx++;
+    }, 30000);
+  }
+
+  /* ---------------------------------------------------- 4. 页面信息 */
   var originLine = document.getElementById('origin-line');
   if (originLine) originLine.textContent = location.origin + location.pathname;
 
@@ -223,185 +369,6 @@
         document.body.removeChild(ta);
         done();
       }
-    });
-  }
-
-  /* ---------------------------------------------------- 4. 浮窗导览员 */
-  var wrap = document.getElementById('buddy-wrap');
-  var buddy = document.getElementById('buddy');
-  var menu = document.getElementById('buddy-menu');
-  var bubble = document.getElementById('buddy-bubble');
-  var navAudio = new Audio();
-  var bubbleTimer = null;
-  var POS_KEY = 'buddy_pos';
-  var BW = 76;
-
-  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-
-  function place(x, y, snap) {
-    var m = 14;
-    var maxX = Math.max(m, window.innerWidth - BW - m);
-    var maxY = Math.max(m, window.innerHeight - BW - m);
-    x = clamp(x, m, maxX);
-    y = clamp(y, m, maxY);
-    if (snap) x = (x + BW / 2 < window.innerWidth / 2) ? m : maxX;
-    wrap.style.left = x + 'px';
-    wrap.style.top = y + 'px';
-    wrap.style.right = 'auto';
-    wrap.style.bottom = 'auto';
-    wrap.classList.toggle('on-left', x + BW / 2 < window.innerWidth / 2);
-    return { x: x, y: y };
-  }
-
-  function save(x, y) {
-    try { window.localStorage.setItem(POS_KEY, x + ',' + y); } catch (e) {}
-  }
-
-  function say(text, src) {
-    if (bubble) {
-      bubble.textContent = text;
-      bubble.hidden = false;
-      window.clearTimeout(bubbleTimer);
-      bubbleTimer = window.setTimeout(function () { bubble.hidden = true; }, 5200);
-    }
-    if (buddy) {
-      buddy.classList.add('is-speaking');
-      window.setTimeout(function () { buddy.classList.remove('is-speaking'); }, 2000);
-    }
-    if (src) {
-      navAudio.src = src;
-      var pr = navAudio.play();
-      if (pr && pr.catch) pr.catch(function () {});
-    }
-  }
-
-  function closeMenu() {
-    if (menu) menu.hidden = true;
-    if (buddy) buddy.classList.remove('is-calling');
-  }
-
-  if (wrap && buddy) {
-    BW = wrap.offsetWidth || 76;
-
-    // 恢复上次的位置
-    var saved = null;
-    try { saved = window.localStorage.getItem(POS_KEY); } catch (e) {}
-    if (saved) {
-      var parts = saved.split(',');
-      var sx = parseFloat(parts[0]);
-      var sy = parseFloat(parts[1]);
-      if (isFinite(sx) && isFinite(sy)) place(sx, sy, false);
-    }
-
-    window.addEventListener('resize', function () {
-      var r = wrap.getBoundingClientRect();
-      place(r.left, r.top, false);
-    });
-
-    var dragging = false;
-    var moved = false;
-    var startX = 0, startY = 0, offX = 0, offY = 0;
-    var pressTimer = null;
-    var downAt = 0;
-
-    buddy.addEventListener('pointerdown', function (ev) {
-      if (ev.button !== undefined && ev.button !== 0) return;
-      dragging = true;
-      moved = false;
-      var r = wrap.getBoundingClientRect();
-      startX = ev.clientX; startY = ev.clientY;
-      offX = ev.clientX - r.left; offY = ev.clientY - r.top;
-      downAt = Date.now();
-      closeMenu();
-      try { buddy.setPointerCapture(ev.pointerId); } catch (e) {}
-      pressTimer = window.setTimeout(function () {
-        if (!moved) {
-          wrappedLongPress = true;
-          buddy.classList.add('is-calling');
-          say('按住我，就能和我说话——对话功能正在接入，先点一下试试我的快捷动作。', '');
-        }
-      }, 650);
-    });
-
-    var wrappedLongPress = false;
-
-    buddy.addEventListener('pointermove', function (ev) {
-      if (!dragging) return;
-      var dx = Math.abs(ev.clientX - startX);
-      var dy = Math.abs(ev.clientY - startY);
-      if (!moved && dx + dy > 8) {
-        moved = true;
-        window.clearTimeout(pressTimer);
-        wrap.classList.add('is-dragging');
-      }
-      if (moved) place(ev.clientX - offX, ev.clientY - offY, false);
-    });
-
-    function endPress(ev) {
-      if (!dragging) return;
-      dragging = false;
-      window.clearTimeout(pressTimer);
-      wrap.classList.remove('is-dragging');
-      var held = Date.now() - downAt;
-      if (moved) {
-        var r = wrap.getBoundingClientRect();
-        var p2 = place(r.left, r.top, true);
-        save(p2.x, p2.y);
-        return;
-      }
-      if (wrappedLongPress) { wrappedLongPress = false; return; }
-      if (held < 650) {
-        buddy.classList.add('is-pop');
-        window.setTimeout(function () { buddy.classList.remove('is-pop'); }, 360);
-        if (menu) {
-          menu.hidden = !menu.hidden;
-          if (!menu.hidden) buddy.classList.add('is-calling');
-        }
-      }
-    }
-
-    buddy.addEventListener('pointerup', endPress);
-    buddy.addEventListener('pointercancel', endPress);
-
-    buddy.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter' || ev.key === ' ') {
-        ev.preventDefault();
-        if (menu) menu.hidden = !menu.hidden;
-      }
-    });
-
-    if (menu) {
-      menu.addEventListener('click', function (ev) {
-        var btn = ev.target.closest ? ev.target.closest('button') : null;
-        if (!btn) return;
-        var go = btn.getAttribute('data-go');
-        var src = btn.getAttribute('data-say');
-        var text = btn.getAttribute('data-text') || '';
-        var alsoPlay = btn.getAttribute('data-play');
-        closeMenu();
-        if (go) {
-          var target = document.querySelector(go);
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        say(text, src);
-        if (alsoPlay) {
-          window.setTimeout(function () {
-            var pb = document.getElementById('voice-play');
-            if (pb) {
-              var av = document.getElementById('voice-audio');
-              if (av && av.paused) pb.click();
-            }
-          }, 3400);
-        }
-      });
-    }
-
-    document.addEventListener('click', function (ev) {
-      if (menu && !menu.hidden && !wrap.contains(ev.target)) closeMenu();
-    });
-
-    document.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Escape') closeMenu();
     });
   }
 
