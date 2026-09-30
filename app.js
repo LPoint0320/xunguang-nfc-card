@@ -431,25 +431,35 @@
     visitLine.textContent = '第 ' + n + ' 次（记录在手机浏览器本地，仅用于演示）';
   }
 
-  var copyBtn = document.getElementById('copy-btn');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', function () {
-      var url = location.href;
-      var done = function () {
-        var old = copyBtn.textContent;
-        copyBtn.textContent = '已复制';
-        window.setTimeout(function () { copyBtn.textContent = old; }, 1600);
+  var shareBtn = document.getElementById('share-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function () {
+      var data = {
+        title: '讯光 · NFC 文创卡',
+        text: '碰一下，听见 AI 的声音。',
+        url: location.href
       };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(done, done);
+      var copied = function () {
+        var old = shareBtn.textContent;
+        shareBtn.textContent = '链接已复制';
+        window.setTimeout(function () { shareBtn.textContent = old; }, 1600);
+      };
+      if (navigator.share) {
+        // 手机上调起系统分享面板；用户自己取消就什么都不做
+        navigator.share(data).catch(function (err) {
+          if (err && err.name === 'AbortError') return;
+          copied();
+        });
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(location.href).then(copied, copied);
       } else {
         var ta = document.createElement('textarea');
-        ta.value = url;
+        ta.value = location.href;
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); } catch (e) {}
+        try { document.execCommand('copy'); } catch (err) {}
         document.body.removeChild(ta);
-        done();
+        copied();
       }
     });
   }
