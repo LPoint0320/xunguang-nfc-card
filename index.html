@@ -49,7 +49,7 @@
 
 <main>
 
-  <section class="block showcase" data-reveal>
+  <section class="block showcase" id="showcase" data-reveal>
     <h2><span class="num">00</span>作品形象</h2>
     <p class="muted">把科大讯飞的品牌基因，做成一个能被记住的角色。</p>
     <div class="shots">
@@ -62,7 +62,7 @@
         <figcaption>卡片实物</figcaption>
       </figure>
     </div>
-    <p class="hint">这两格目前是占位图。把图片放进 assets/ 目录，分别命名为 mascot.png（AI 生成的萌化形象）和 card.png（卡片实物照片）即可自动替换。单张建议压缩到 300 KB 以内、宽度 1200 px 左右，手机打开会更快。</p>
+    <p class="hint">这两格目前是占位图。萌化形象已经换成你的角色了；右边那格还是占位图，把卡片实物照片放进 assets/ 并命名为 card.png 即可自动替换。单张建议压缩到 300 KB 以内、宽度 1200 px 左右，手机打开会更快。</p>
   </section>
 
   <section class="block" id="about" data-reveal>
@@ -182,6 +182,25 @@
   <p>科大讯飞产教融合「X+AI 文创共创计划」参赛作品</p>
   <p class="foot-note">碰一下，听见 AI 的声音。</p>
 </footer>
+
+<!-- ============================ 浮窗导览员 ============================ -->
+<div class="buddy-wrap" id="buddy-wrap">
+  <div class="buddy-menu" id="buddy-menu" hidden role="menu" aria-label="快捷动作">
+    <button type="button" role="menuitem" data-go="#about" data-say="assets/voice/nav01.mp3"
+            data-text="好，我们去看科大讯飞在做什么。">带我看讯飞在做什么</button>
+    <button type="button" role="menuitem" data-go="#voice" data-say="assets/voice/nav02.mp3"
+            data-text="这就是这张卡的声音，一起听。" data-play="1">听听这张卡的声音</button>
+    <button type="button" role="menuitem" data-go="#showcase" data-say="assets/voice/nav03.mp3"
+            data-text="先看看我长什么样。">先看看我长什么样</button>
+    <button type="button" role="menuitem" data-go="#about-page" data-say="assets/voice/nav04.mp3"
+            data-text="这个作品的来龙去脉，都写在这一页。">这个作品的来龙去脉</button>
+  </div>
+  <p class="buddy-bubble" id="buddy-bubble" hidden></p>
+  <div class="buddy" id="buddy" role="button" tabindex="0"
+       aria-label="页面向导：点一下打开快捷动作，长按可以和我说话">
+    <img src="assets/mascot-cut.png" alt="">
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

@@ -226,4 +226,183 @@
     });
   }
 
+  /* ---------------------------------------------------- 4. 浮窗导览员 */
+  var wrap = document.getElementById('buddy-wrap');
+  var buddy = document.getElementById('buddy');
+  var menu = document.getElementById('buddy-menu');
+  var bubble = document.getElementById('buddy-bubble');
+  var navAudio = new Audio();
+  var bubbleTimer = null;
+  var POS_KEY = 'buddy_pos';
+  var BW = 76;
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  function place(x, y, snap) {
+    var m = 14;
+    var maxX = Math.max(m, window.innerWidth - BW - m);
+    var maxY = Math.max(m, window.innerHeight - BW - m);
+    x = clamp(x, m, maxX);
+    y = clamp(y, m, maxY);
+    if (snap) x = (x + BW / 2 < window.innerWidth / 2) ? m : maxX;
+    wrap.style.left = x + 'px';
+    wrap.style.top = y + 'px';
+    wrap.style.right = 'auto';
+    wrap.style.bottom = 'auto';
+    wrap.classList.toggle('on-left', x + BW / 2 < window.innerWidth / 2);
+    return { x: x, y: y };
+  }
+
+  function save(x, y) {
+    try { window.localStorage.setItem(POS_KEY, x + ',' + y); } catch (e) {}
+  }
+
+  function say(text, src) {
+    if (bubble) {
+      bubble.textContent = text;
+      bubble.hidden = false;
+      window.clearTimeout(bubbleTimer);
+      bubbleTimer = window.setTimeout(function () { bubble.hidden = true; }, 5200);
+    }
+    if (buddy) {
+      buddy.classList.add('is-speaking');
+      window.setTimeout(function () { buddy.classList.remove('is-speaking'); }, 2000);
+    }
+    if (src) {
+      navAudio.src = src;
+      var pr = navAudio.play();
+      if (pr && pr.catch) pr.catch(function () {});
+    }
+  }
+
+  function closeMenu() {
+    if (menu) menu.hidden = true;
+    if (buddy) buddy.classList.remove('is-calling');
+  }
+
+  if (wrap && buddy) {
+    BW = wrap.offsetWidth || 76;
+
+    // 恢复上次的位置
+    var saved = null;
+    try { saved = window.localStorage.getItem(POS_KEY); } catch (e) {}
+    if (saved) {
+      var parts = saved.split(',');
+      var sx = parseFloat(parts[0]);
+      var sy = parseFloat(parts[1]);
+      if (isFinite(sx) && isFinite(sy)) place(sx, sy, false);
+    }
+
+    window.addEventListener('resize', function () {
+      var r = wrap.getBoundingClientRect();
+      place(r.left, r.top, false);
+    });
+
+    var dragging = false;
+    var moved = false;
+    var startX = 0, startY = 0, offX = 0, offY = 0;
+    var pressTimer = null;
+    var downAt = 0;
+
+    buddy.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== undefined && ev.button !== 0) return;
+      dragging = true;
+      moved = false;
+      var r = wrap.getBoundingClientRect();
+      startX = ev.clientX; startY = ev.clientY;
+      offX = ev.clientX - r.left; offY = ev.clientY - r.top;
+      downAt = Date.now();
+      closeMenu();
+      try { buddy.setPointerCapture(ev.pointerId); } catch (e) {}
+      pressTimer = window.setTimeout(function () {
+        if (!moved) {
+          wrappedLongPress = true;
+          buddy.classList.add('is-calling');
+          say('按住我，就能和我说话——对话功能正在接入，先点一下试试我的快捷动作。', '');
+        }
+      }, 650);
+    });
+
+    var wrappedLongPress = false;
+
+    buddy.addEventListener('pointermove', function (ev) {
+      if (!dragging) return;
+      var dx = Math.abs(ev.clientX - startX);
+      var dy = Math.abs(ev.clientY - startY);
+      if (!moved && dx + dy > 8) {
+        moved = true;
+        window.clearTimeout(pressTimer);
+        wrap.classList.add('is-dragging');
+      }
+      if (moved) place(ev.clientX - offX, ev.clientY - offY, false);
+    });
+
+    function endPress(ev) {
+      if (!dragging) return;
+      dragging = false;
+      window.clearTimeout(pressTimer);
+      wrap.classList.remove('is-dragging');
+      var held = Date.now() - downAt;
+      if (moved) {
+        var r = wrap.getBoundingClientRect();
+        var p2 = place(r.left, r.top, true);
+        save(p2.x, p2.y);
+        return;
+      }
+      if (wrappedLongPress) { wrappedLongPress = false; return; }
+      if (held < 650) {
+        buddy.classList.add('is-pop');
+        window.setTimeout(function () { buddy.classList.remove('is-pop'); }, 360);
+        if (menu) {
+          menu.hidden = !menu.hidden;
+          if (!menu.hidden) buddy.classList.add('is-calling');
+        }
+      }
+    }
+
+    buddy.addEventListener('pointerup', endPress);
+    buddy.addEventListener('pointercancel', endPress);
+
+    buddy.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        if (menu) menu.hidden = !menu.hidden;
+      }
+    });
+
+    if (menu) {
+      menu.addEventListener('click', function (ev) {
+        var btn = ev.target.closest ? ev.target.closest('button') : null;
+        if (!btn) return;
+        var go = btn.getAttribute('data-go');
+        var src = btn.getAttribute('data-say');
+        var text = btn.getAttribute('data-text') || '';
+        var alsoPlay = btn.getAttribute('data-play');
+        closeMenu();
+        if (go) {
+          var target = document.querySelector(go);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        say(text, src);
+        if (alsoPlay) {
+          window.setTimeout(function () {
+            var pb = document.getElementById('voice-play');
+            if (pb) {
+              var av = document.getElementById('voice-audio');
+              if (av && av.paused) pb.click();
+            }
+          }, 3400);
+        }
+      });
+    }
+
+    document.addEventListener('click', function (ev) {
+      if (menu && !menu.hidden && !wrap.contains(ev.target)) closeMenu();
+    });
+
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') closeMenu();
+    });
+  }
+
 })();
