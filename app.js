@@ -258,6 +258,8 @@
     if (buddy) buddy.classList.remove('is-calling');
   }
   function openMenu() {
+    // 气泡和菜单在同一位置，气泡在后、又没层级，会把菜单盖住 —— 打开菜单前先收起气泡
+    if (bubble) { bubble.hidden = true; window.clearTimeout(bubbleTimer); }
     if (menu) menu.hidden = false;
     if (buddy) buddy.classList.add('is-calling');
   }

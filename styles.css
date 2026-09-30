@@ -644,6 +644,7 @@ main{padding:0 22px 34px}
 
 .buddy-bubble{
   position:absolute;
+  z-index:1;
   bottom:calc(100% + 10px);
   right:0;
   width:210px;
@@ -662,6 +663,7 @@ main{padding:0 22px 34px}
 
 .buddy-menu{
   position:absolute;
+  z-index:2;
   bottom:calc(100% + 10px);
   right:0;
   width:220px;
