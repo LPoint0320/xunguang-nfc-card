@@ -73,7 +73,8 @@
   }
   function clearLog(msg) { logEl.textContent = msg; }
 
-  urlEl.value = location.origin.replace(/\/$/, '') + '/index.html';
+  var baseDir = location.pathname.replace(/[^/]*$/, '');
+  urlEl.value = location.origin + baseDir + 'index.html';
 
   if (!supported) {
     clearLog('当前浏览器不支持 Web NFC。\n请用安卓版 Chrome 打开本页，或改用 NFC 工具类 App 写卡。');
