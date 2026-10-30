@@ -432,6 +432,12 @@ main{padding:0 22px 34px}
   background:var(--mist);
 }
 
+.shot--card img{
+  aspect-ratio:auto;
+  object-fit:contain;
+  padding:14px;
+}
+
 .shot figcaption{
   padding:9px 14px;
   font-size:12.5px;
